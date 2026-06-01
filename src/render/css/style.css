@@ -1,0 +1,362 @@
+html {
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+.version {
+  cursor: pointer;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  color: white;
+  font-size: 11px;
+}
+
+.list-reset {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.title-reset {
+  margin: 0;
+  padding: 0;
+}
+
+.text-reset {
+  margin: 0;
+  padding: 0;
+}
+
+.button-reset {
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.link-reset {
+  text-decoration: none;
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+}
+
+.container {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+select {
+  padding: 8px 12px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+}
+
+
+body {
+  position: relative;
+  height: 100vh;
+  background: radial-gradient(circle at 20% 80%,
+      #3c2269 0%,
+      #18162b 50%,
+      #0f0e17 100%);
+  background-attachment: fixed;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 20% 80%, #3c2269 0%, #18162b 50%, #0f0e17 100%);
+  z-index: -1;
+  transition: transform 0.1s ease;
+}
+
+body.dashboard-active::before {
+  animation: floatGradient 10s ease-in-out infinite alternate;
+}
+
+@keyframes floatGradient {
+  0% { transform: translate(0%, 0%); }
+  25% { transform: translate(20%, -10%); }
+  50% { transform: translate(-20%, -5%); }
+  75% { transform: translate(10%, 15%); }
+  100% { transform: translate(0%, 0%); }
+}
+
+/* header */
+
+/* Начальное состояние — весь header на весь экран */
+/* Начальное состояние (когда оба класса на элементе) */
+/* Убираем отступы у body и запрещаем скролл всей страницы */
+.body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #130a22;
+  /* Темный фон приложения */
+}
+
+/* Создаем сетку: сайдбар слева, контент справа */
+.app-grid {
+  display: grid;
+  padding: 15px;
+  grid-template-columns: 225px 1fr;
+  /* Ширина сайдбара 260px */
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Правая колонка: шапка жестко сверху, контент под ней */
+.app-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sidebar {
+  padding: 20px;
+}
+
+.sidebar,
+.header {
+  /* 1. Полупрозрачный темно-фиолетовый фон (последнее число 0.65 — это прозрачность) */
+  background: rgb(175 164 198 / 12%);
+
+  /* 2. Эффект размытия того, что находится ЗА блоком */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  /* Для поддержки в Safari */
+
+  /* 3. Тонкая полупрозрачная рамка, которая создает эффект ребра стекла */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Шапка имеет фиксированную высоту */
+
+
+.sidebar {
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+
+/* Основной контент занимает все оставшееся место и скроллится */
+.main {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 30px;
+}
+
+.header.start-style-header {
+  height: 100vh;
+}
+
+/* Основной класс (когда стартовый класс удален) */
+.header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+  height: 120px;
+  transition: height 0.5s cubic-bezier(0.65, 0.05, 0.36, 1);
+}
+
+
+/* Контейнер, который нужно центрировать */
+.start-style-content-header {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: auto;
+  /* ширина по содержимому */
+}
+
+/* Обычный контейнер */
+.content-header {
+
+  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
+  background-color: transparent;
+  gap: 20px;
+  width: 100%;
+}
+
+.content-header__block {
+  padding: 15px 0 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.link-logo {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 66px;
+}
+
+.link-logo .logo {
+  display: block;
+  transition: transform 0.1s, filter 0.1s;
+}
+
+.link-logo:hover .logo {
+  transform: scale(1.02);
+
+}
+
+.logo {
+  width: 40px;
+  height: 35px;
+  border-radius: 4px;
+  transition: transform 0.1s ease-in-out;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+.header-nav {
+  display: flex;
+  align-items: start;
+  flex-direction: column;
+  color: white;
+}
+
+.header-nav-button {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  color: white;
+  font-size: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.header-nav-button {
+  margin-bottom: 30px;
+}
+
+.header-nav-button-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+/* Псевдоэлемент — линия подчёркивания */
+.header-nav-button::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  /* расстояние от текста до линии */
+  left: 50%;
+  width: 0;
+  height: 1px;
+  background-color: white;
+  transition: width 0.2s ease, left 0.2s ease;
+}
+
+/* При наведении линия расширяется от центра к краям */
+.header-nav-button:hover::after {
+  width: 100%;
+  left: 0;
+}
+
+.avatar-client {
+  position: absolute;
+  right: 4%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 75px;
+  height: 75px;
+  border-radius: 50%;
+  background-image: url("../../App/images/userPhoto/slava.jpeg");
+  background-position: center;
+  background-size: 100%;
+  background-repeat: no-repeat;
+}
+
+/* main */
+.main-container {}
+
+/* Анимация для контента (исчезает и сдвигается вверх) */
+.fade-out {
+  animation: fadeMoveUp 0.5s forwards;
+}
+
+@keyframes fadeMoveUp {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -100%) scale(0.8);
+    visibility: hidden;
+  }
+}
+
+.photo-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100000;
+  cursor: pointer;
+}
+
+.button-nav-problems {
+  font-size: 10px;
+}
+
+.photo-modal-img {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.photo-modal-close {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: white;
+  border: none;
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 100001;
+}

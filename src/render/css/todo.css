@@ -1,0 +1,553 @@
+/* верхняя панель: label + select + форма в одну строку */
+.todo-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  /* ← центрирование по вертикали */
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #e9edf2;
+  padding-bottom: 20px;
+  padding-top: 20px;
+  padding-left: 50px;
+  /* ← отступ слева */
+  padding-right: 50px;
+  /* ← отступ справа */
+}
+
+.todo-label {
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  margin: 0;
+  color: white;
+  margin-right: 5px;
+  /* убираем лишние отступы */
+}
+
+.selects-container {
+  padding-bottom: 20px;
+  justify-content: space-between;
+  display: flex;
+  font-size: 12px;
+  align-items: center;
+}
+
+.extra-selects {
+  display: flex;
+  font-weight: 500;
+}
+
+.extra-label {
+  color: white;
+  margin-right: 5px;
+}
+
+.extra-select {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 24px;
+  padding: 0.5rem 2rem 0.5rem 1rem;
+  font-size: 25px;
+  font-weight: 500;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url(data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23475a6d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>);
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 14px;
+}
+
+.extra-select-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.extra-select-wrapper:not(:last-child) {
+  margin-right: 8px;
+}
+
+/* modal.css */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.modal-container {
+  background-color: #1e1e2f;
+  color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.modal-container h3 {
+  margin: 0 0 15px 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.modal-label {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 4px;
+  font-size: 13px;
+  color: #ccc;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 6px 8px;
+  background-color: #2a2a3a;
+  color: #ffffff;
+  border: 1px solid #444;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.modal-input:focus {
+  outline: none;
+  border-color: #00bcd4;
+}
+
+.modal-buttons {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.modal-buttons button {
+  padding: 6px 12px;
+  cursor: pointer;
+  background-color: #2a2a3a;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 4px;
+}
+
+.modal-buttons button:hover {
+  background-color: #3a3a4a;
+}
+
+.modal-buttons button:first-child {
+  background-color: #00bcd4;
+  border-color: #00bcd4;
+}
+
+.modal-buttons button:first-child:hover {
+  background-color: #008c9e;
+}
+
+/* Аватарка автора */
+.todo-item-autor {
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  right: -53px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: transform 0.5s;
+}
+
+.todo-item-autor:hover {
+  transform: scale(1.3);
+}
+
+.todo-select {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  padding: 6px 30px 5px 6px;
+  font-weight: 500;
+  color: #1e293b;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+  appearance: none;
+  /* убираем стандартную стрелку */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23475a6d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 14px;
+}
+
+.todo-select:hover {
+  border-color: #3b82f6;
+  background-color: #ffffff;
+
+}
+
+.todo-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.todo-select option {
+  font-weight: normal;
+  background: white;
+  color: #1e293b;
+}
+
+.todo-item-icon {
+  width: 35px;
+  position: absolute;
+  left: -43px;
+  height: 35px;
+  background-position: center;
+  background-size: 100%;
+  background-repeat: no-repeat;
+  transition: transform 0.5s;
+}
+
+.todo-item-icon:hover {
+  transform: scale(1.3);
+}
+
+.todo-select:hover {
+  border-color: #94a3b8;
+}
+
+.todo-title {
+  font-size: 25px;
+  color: white;
+  margin-top: 0;
+}
+
+/* форма: инпут + кнопка */
+.todo-form {
+  display: flex;
+  flex: 1;
+  gap: 0.75rem;
+  margin: 0;
+  margin-bottom: 15px;
+}
+
+.todo-input {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border: 1px solid #d0d7de;
+  border-radius: 10px;
+  font-size: 25px;
+  background: white;
+  transition: 0.2s;
+}
+
+.todo-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.todo-button {
+  background: #0A0A09;
+  border: none;
+  border-radius: 10px;
+  padding: 0.6rem 1.4rem;
+  font-weight: 500;
+  font-size: 20px;
+  color: white;
+  cursor: pointer;
+  transition: 0.1s;
+}
+
+.todo-button:hover {
+  transform: scale(1.01);
+}
+
+.todo-button:disabled {
+  background: #0A0A09;
+  opacity: 0.5;
+  transform: scale(1);
+  cursor: not-allowed;
+}
+
+.todo-button:not(:disabled):hover {
+  background: #0A0A09;
+}
+
+.todo-button-photo {
+  width: 60px;
+  height: 50px;
+  background-image: url("../../App/images/downImages.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+/* Активная кнопка при наведении (увеличение) */
+.todo-button-photo:not(:disabled):hover {
+  transform: scale(1.03);
+  background-color: transparent;
+  /* чтобы не закрашивался фон */
+}
+
+/* Отключённая кнопка при наведении (без увеличения) */
+.todo-button-photo:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: scale(1);
+}
+
+.todo-button-photo:disabled:hover {
+  transform: scale(1);
+  /* явно запрещаем увеличение */
+  background-color: transparent;
+}
+
+.todo-item-show-photo {
+  width: 40px;
+  height: 30px;
+  background-image: url("../../App/images/imageShow.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+  transition: transform, 0.1 ease-in-out;
+}
+
+.todo-item-show-photo:hover {
+  transform: scale(1.1);
+}
+
+/* список задач */
+.todo-list {
+  list-style: none;
+  padding: 0;
+  padding-left: 45px;
+  padding-right: 57px;
+  width: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* одна задача */
+.todo-item {
+  align-items: center;
+  position: relative;
+  background: #8970c847;
+  border-radius: 10px;
+  transition: all 0.2s;
+  color: white;
+  display: flex;
+  min-height: 45px;
+  cursor: pointer;
+  transition: background-color 0.1ёёs;
+}
+
+.todo-item:hover {
+  background-color: #8970c88a;
+}
+
+.todo-item-text {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  word-break: break-word;
+  height: 100%;
+  padding-left: 10px;
+  padding-right: 3px;
+  border-radius: 0px 10px 10px 0px;
+  background-color: #8080804f;
+  flex-grow: 1;
+}
+
+
+
+/* выполненные задачи */
+.todo-item--completed {
+  background-color: #1eb91ea1 !important;
+  color: white;
+}
+
+.todo-item--completed .todo-item-done {
+  color: white;
+}
+
+/* блок с кнопками действий */
+.todo-item-actions {
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+  gap: 0.5rem;
+  margin-left: auto;
+  flex-shrink: 0;
+  padding-right: 15px;
+}
+
+.todo-item-done,
+.todo-item-delete {
+  border: none;
+  background: transparent;
+  font-size: 11px;
+  width: 66px;
+  height: 32px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.todo-item-done {
+  color: #10b981;
+}
+
+.todo-item-done:hover {
+  background: #e9f9f0;
+}
+
+.todo-item-delete {
+  color: #efe450;
+}
+
+.todo-item-delete:hover {
+  background: #fff0f0;
+  color: black;
+}
+
+.filter-container {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.filter-span {
+  color: white;
+}
+
+.filter-select {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 6px 10px 5px 6px;
+  font-size: 12px;
+}
+
+.todo-item-left-block {
+  display: flex;
+  height: 100%;
+  align-items: center;
+}
+
+.todo-item-date {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  border-right: 2px solid gray;
+  font-size: 9px;
+  /* padding-right: 10px; */
+  padding-left: 10px;
+  width: 97px;
+  flex-shrink: 0;
+}
+
+.block-confirm {
+  position: fixed;
+  /* привязано к окну, а не к странице */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 24px 32px;
+  border-radius: 16px;
+  box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.3);
+  z-index: 10000;
+  text-align: center;
+  min-width: 260px;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.block-buttons-confirm {
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.button-confirm,
+.button-exit {
+  padding: 6px 20px;
+  border: none;
+  border-radius: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.button-confirm {
+  background: #dc2626;
+  color: white;
+}
+
+.button-confirm:hover {
+  background: #b91c1c;
+  transform: scale(1.02);
+}
+
+.button-exit {
+  background: #e5e7eb;
+  color: #1f2937;
+}
+
+.button-exit:hover {
+  background: #d1d5db;
+  transform: scale(1.02);
+}
+
+.body-disabled {
+  position: fixed;
+  /* ← fixed, не relative */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.block-confirm {
+  background: white;
+  padding: 24px 32px;
+  border-radius: 16px;
+  box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  z-index: 10000;
+  pointer-events: auto;
+}
+
+.todo-item-content {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-self: stretch;
+  align-items: center;
+}

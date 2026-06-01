@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/fonts.css">
+    <link rel="stylesheet" href="css/todo.css">
+    <link rel="stylesheet" href="css/contacts.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+
+<body class="body">
+    <div class="version">version 1.1</div>
+    <!-- Главная сетка приложения -->
+    <div class="app-grid">
+
+        <!-- СЛЕВА: Боковая панель управления (как на вашем скриншоте) -->
+        <aside class="sidebar">
+
+            <!-- Сюда вставляйте пункты меню (Dashboard, Audience, Posts...) -->
+            <nav class="sidebar__nav">
+                <!-- Версия перенесена внутрь сайдбара вниз или к логотипу -->
+                <a class="link-logo" href="index.html">
+                    <img class="logo" src="../App/images/weld-team-logo.png" alt="logo">
+                </a>
+                <div class="header-nav list-reset">
+                    <button id="button-nav-problems" class="header-nav-button button-reset">
+                        <img class="header-nav-button-icon" src="../App/images/icons/work.png" alt="">
+                        <span>Проблемы</span>
+                    </button>
+                    <button id="button-nav-contacts" class="header-nav-button button-reset">
+                        <img class="header-nav-button-icon" src="../App/images/icons/contacts.png" alt="">
+                        <span>Контакты</span>
+                    </button>
+                </div>
+
+            </nav>
+        </aside>
+
+        <!-- СПРАВА: Оболочка для верхней шапки и основного контента -->
+        <div class="app-content-wrapper">
+
+            <!-- СВЕРХУ: Шапка (с кнопками, профилем и т.д.) -->
+            <header class="header">
+
+            </header>
+
+            <!-- СНИЗУ: Основная рабочая область для Dashboard и карточек -->
+            <main class="main">
+                <div class="main-container">
+                </div>
+            </main>
+
+        </div> <!-- /app-content-wrapper -->
+
+    </div> <!-- /app-grid -->
+
+    <script type="module" src="render.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/topbar@1.0.1/topbar.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      position: relative;
+    }
+
+    img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .close-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: none;
+      font-size: 30px;
+      cursor: pointer;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      z-index: 9999;
+    }
+
+    .close-btn:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+  </style>
+</head>
+
+<body>
+  <button class="close-btn" onclick="window.close()">✕</button>
+  <img id="photo">
+  <script>
+    const { ipcRenderer } = require('electron');
+    console.log('photo-viewer loaded');
+    ipcRenderer.on('load-photo', (event, filePath) => {
+      console.log('load-photo event received, path:', filePath);
+      const img = document.getElementById('photo');
+      img.src = `file://${filePath}`;
+      img.onerror = () => console.error('Ошибка загрузки фото:', img.src);
+      img.onload = () => console.log('Фото загружено');
+    });
+  </script>
+</body>
+
+</html>

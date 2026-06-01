@@ -1,0 +1,13 @@
+{
+    "appId": "com.vepr.nike",
+    "productName": "Nike",
+    "directories": {
+        "output": "dist"
+    },
+    "files": [
+        "src/**/*"
+    ],
+    "win": {
+        "target": "dir"
+    }
+}
