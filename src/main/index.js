@@ -2,15 +2,35 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
-
-
 const BASE_DIR = path.join('I:', 'Production', 'Welding', 'dataAppWelding');
-
 const DATA_PATH = path.join(BASE_DIR, 'issues.json');       // Файл задач
 const PHOTO_DIR = path.join(BASE_DIR, 'photos');            // Папка для фото дефектов
 const AVATARS_DIR = path.join(BASE_DIR, 'userPhoto');       // Папка для аватарок сотрудников
 const USERS_JSON_PATH = path.join(BASE_DIR, 'users.json');  // Путь к вашей базе в JSON
+let mainWindow = null;
+let reloadTimer = null;
+let lastSaveTime = 0;
 
+function watchIssuesFile() {
+  if (!fs.existsSync(DATA_PATH)) return;
+
+  fs.watch(DATA_PATH, (eventType) => {
+    if (eventType !== 'change') return;
+
+    // Защита от своего сохранения (игнорируем 500 мс после нашего save)
+    if (Date.now() - lastSaveTime < 500) return;
+
+    // Debounce: ждём 300 мс, прежде чем сказать рендеру
+    if (reloadTimer) clearTimeout(reloadTimer);
+    reloadTimer = setTimeout(() => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        console.log('🔄 Файл изменился, уведомляем рендер...');
+        mainWindow.webContents.send('issues-file-changed');
+      }
+      reloadTimer = null;
+    }, 300);
+  });
+}
 
 
 ipcMain.handle('get-avatar-base64', async (event, filename) => {
@@ -73,6 +93,7 @@ ipcMain.handle('load-issues', async () => loadIssues());
 
 // 6. Сохранение задач
 ipcMain.handle('save-issues', async (event, issues) => {
+
   return { success: saveIssues(issues) };
 });
 
@@ -95,6 +116,19 @@ ipcMain.handle('select-file', async () => {
   } catch (err) {
     console.error(err);
     return null;
+  }
+});
+
+ipcMain.handle('check-internet', async () => {
+  try {
+    const { exec } = require('child_process');
+    return new Promise((resolve) => {
+      exec('ping -n 1 8.8.8.8', (error) => {
+        resolve(!error); // true если пинг прошёл
+      });
+    });
+  } catch (err) {
+    return false;
   }
 });
 
@@ -182,6 +216,7 @@ function loadIssues() {
 }
 
 function saveIssues(issues) {
+  lastSaveTime = Date.now();
   try {
     const dir = path.dirname(DATA_PATH);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
@@ -190,23 +225,25 @@ function saveIssues(issues) {
   } catch (err) { return false; }
 }
 
-// src/main/index.js
 function createWindow() {
-  const win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'), // Убедись, что preload.js лежит в src/main/
+      preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
     },
   });
 
   // Загружаем index.html из папки render
-  win.loadFile(path.join(__dirname, '../render/index.html'));
+  mainWindow.loadFile(path.join(__dirname, '../render/index.html'));
 
-  // Открываем DevTools (удобно для отладки, потом можешь закомментировать)
-  win.webContents.openDevTools();
+  // Открываем DevTools (удобно для отладки)
+  mainWindow.webContents.openDevTools();
+
+  // 👇 ЭТО НОВОЕ — запускаем слежение за файлом
+  setTimeout(() => watchIssuesFile(), 1000);
 }
 
 app.whenReady().then(createWindow);

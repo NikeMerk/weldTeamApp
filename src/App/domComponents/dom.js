@@ -1,4 +1,6 @@
 import { extraSelectsConfig, stationModels, stationRobots } from "../api/dataArray.js";
+import { showLoader, hideLoader } from "../../render/loader/loader.js";
+console.log(showLoader)
 
 export const createTitleTodo = () => {
   const title = document.createElement("h2");
@@ -500,105 +502,102 @@ export const confirmWindow = () => {
 };
 
 export const createContacts = async () => {
-  // 1. Запрашиваем массив пользователей с сетевого диска
-  const usersData = await window.api.getAllUsers();
+  const loader = document.getElementById('customLoader');
+  if (loader) {
+    loader.style.display = 'flex';
+    const textDiv = loader.querySelector('div:last-child');
+    if (textDiv) textDiv.textContent = 'Загрузка контактов...';
+  }
 
-  const titleContacts = document.createElement('h3');
-  const listContacts = document.createElement('ul');
+  try {
+    const usersData = await window.api.getAllUsers();
 
-  titleContacts.classList.add('title-contacts');
-  listContacts.classList.add('list-contacts');
-  titleContacts.textContent = 'Контакты';
+    const titleContacts = document.createElement('h3');
+    const listContacts = document.createElement('ul');
 
-  // 2. ИДЕАЛЬНЫЙ АСИНХРОННЫЙ ЦИКЛ (Здесь await разрешен на 100%)
-  for (const obj of usersData) {
-    const itemContacts = document.createElement('li');
-    const avatar = document.createElement('img');
-    const name = document.createElement('h2');
-    const position = document.createElement('p');
-    const mainPhone = document.createElement('a');
-    const socialLinks = document.createElement('div');
-    const tgLink = document.createElement('a');
-    const waLink = document.createElement('a');
-    const vbLink = document.createElement('a');
+    titleContacts.classList.add('title-contacts');
+    listContacts.classList.add('list-contacts');
+    titleContacts.textContent = 'Контакты';
 
-    itemContacts.classList.add('item-contacts');
+    for (const obj of usersData) {
+      const itemContacts = document.createElement('li');
+      const avatar = document.createElement('img');
+      const name = document.createElement('h2');
+      const position = document.createElement('p');
+      const mainPhone = document.createElement('a');
+      const socialLinks = document.createElement('div');
+      const tgLink = document.createElement('a');
+      const waLink = document.createElement('a');
+      const vbLink = document.createElement('a');
 
-    // Настройка аватарки
-    avatar.alt = 'Аватар';
-    avatar.classList.add('avatar');
+      itemContacts.classList.add('item-contacts');
+      avatar.alt = 'Аватар';
+      avatar.classList.add('avatar');
 
-    if (obj.avatarUrl) {
-      // Запрашиваем base64 картинки у Electron
-      const base64Photo = await window.api.getAvatarBase64(obj.avatarUrl);
-
-      if (base64Photo) {
-        avatar.src = base64Photo;
+      if (obj.avatarUrl) {
+        const base64Photo = await window.api.getAvatarBase64(obj.avatarUrl);
+        if (base64Photo) {
+          avatar.src = base64Photo;
+        } else {
+          const defaultBase64 = await window.api.getAvatarBase64('default.jpg');
+          avatar.src = defaultBase64 || '';
+        }
       } else {
-        // Если фотка сотрудника не найдена, берем заглушку default.jpg из сети
         const defaultBase64 = await window.api.getAvatarBase64('default.jpg');
         avatar.src = defaultBase64 || '';
       }
-    } else {
-      const defaultBase64 = await window.api.getAvatarBase64('default.jpg');
-      avatar.src = defaultBase64 || '';
+
+      name.textContent = obj.name;
+      position.classList.add('position');
+      position.textContent = obj.position;
+      mainPhone.href = `tel:${obj.phoneLink}`;
+      mainPhone.classList.add('main-phone');
+      mainPhone.textContent = obj.phoneText;
+
+      socialLinks.classList.add('social-links');
+
+      tgLink.href = 'https://t.me';
+      tgLink.target = '_blank';
+      tgLink.classList.add('social-btn', 'tg');
+      tgLink.textContent = 'Telegram';
+
+      waLink.href = 'https://wa.me';
+      waLink.target = '_blank';
+      waLink.classList.add('social-btn', 'wa');
+      waLink.textContent = 'WhatsApp';
+
+      vbLink.href = `viber://chat?number=${encodeURIComponent(obj.phoneLink)}`;
+      vbLink.classList.add('social-btn', 'vb');
+      vbLink.textContent = 'Viber';
+
+      socialLinks.appendChild(tgLink);
+      socialLinks.appendChild(waLink);
+      socialLinks.appendChild(vbLink);
+
+      itemContacts.appendChild(avatar);
+      itemContacts.appendChild(name);
+      itemContacts.appendChild(position);
+      itemContacts.appendChild(mainPhone);
+      itemContacts.appendChild(socialLinks);
+
+      listContacts.appendChild(itemContacts);
     }
 
-    // Имя
-    name.textContent = obj.name;
-
-    // Должность
-    position.classList.add('position');
-    position.textContent = obj.position;
-
-    // Ссылка на телефон
-    mainPhone.href = `tel:${obj.phoneLink}`;
-    mainPhone.classList.add('main-phone');
-    mainPhone.textContent = obj.phoneText;
-
-    // Блок соц. сетей
-    socialLinks.classList.add('social-links');
-
-    // Telegram
-    tgLink.href = 'https://t.me';
-    tgLink.target = '_blank';
-    tgLink.classList.add('social-btn', 'tg');
-    tgLink.textContent = 'Telegram';
-
-    // WhatsApp
-    waLink.href = 'https://wa.me';
-    waLink.target = '_blank';
-    waLink.classList.add('social-btn', 'wa');
-    waLink.textContent = 'WhatsApp';
-
-    // Viber
-    vbLink.href = `viber://chat?number=${encodeURIComponent(obj.phoneLink)}`;
-    vbLink.classList.add('social-btn', 'vb');
-    vbLink.textContent = 'Viber';
-
-    // Сборка карточки сотрудника
-    socialLinks.appendChild(tgLink);
-    socialLinks.appendChild(waLink);
-    socialLinks.appendChild(vbLink);
-
-    itemContacts.appendChild(avatar);
-    itemContacts.appendChild(name);
-    itemContacts.appendChild(position);
-    itemContacts.appendChild(mainPhone);
-    itemContacts.appendChild(socialLinks);
-
-    listContacts.appendChild(itemContacts);
+    const container = document.querySelector(".main-container");
+    if (container) {
+      container.innerHTML = ''; // Очищаем контейнер
+      container.appendChild(titleContacts);
+      container.appendChild(listContacts);
+    }
+  } catch (error) {
+    console.error("Ошибка при загрузке контактов:", error);
+  } finally {
+    // Скрываем лоадер
+    if (loader) {
+      loader.style.display = 'none';
+    }
   }
-
-  // 3. Выводим всё в главный контейнер приложения
-  const container = document.querySelector(".main-container");
-  if (container) {
-    container.appendChild(titleContacts);
-    container.appendChild(listContacts);
-  } else {
-    console.error("Контейнер .main-container не найден на странице!");
-  }
-}
+};
 
 export const createHeaderContent = async (currentUser) => {
   const header = document.querySelector('.header');

@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld('api', {
   showPhotoFullscreen: (filename) => ipcRenderer.invoke('show-photo-fullscreen', filename),
   getPhotoBase64: (filename) => ipcRenderer.invoke('get-photo-base64', filename),
   getAvatarBase64: (filename) => ipcRenderer.invoke('get-avatar-base64', filename),
+  checkInternet: () => ipcRenderer.invoke('check-internet'),
 
 
   // Добавляем новые мосты для работы с пользователями:
