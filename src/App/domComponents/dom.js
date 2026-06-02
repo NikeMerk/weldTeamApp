@@ -1,6 +1,6 @@
-import { extraSelectsConfig, stationModels, stationRobots } from "../api/dataArray.js";
+import { extraSelectsConfig, stationModels, stationRobots, gunStations } from "../api/dataArray.js";
 import { showLoader, hideLoader } from "../../render/loader/loader.js";
-console.log(showLoader)
+
 
 export const createTitleTodo = () => {
   const title = document.createElement("h2");
@@ -13,7 +13,7 @@ export const createSect = () => {
   const container = document.createElement('div');
   container.classList.add('selects-container');
 
-  const blockLeft = document.createElement("div")
+  const blockLeft = document.createElement("div");
   const label = document.createElement('label');
   const select = document.createElement('select');
   const extraSelectsDiv = document.createElement('div');
@@ -26,7 +26,7 @@ export const createSect = () => {
   label.classList.add('todo-label');
 
   select.classList.add("todo-select", "select-style");
-  blockLeft.classList.add("extra-select-wrapper")
+  blockLeft.classList.add("extra-select-wrapper");
   extraSelectsDiv.classList.add('extra-selects');
   select.id = 'todo-select';
   select.name = 'options';
@@ -44,125 +44,190 @@ export const createSect = () => {
   function renderExtraSelects(robotType) {
     extraSelectsDiv.innerHTML = '';
 
-    const configs = extraSelectsConfig[robotType] || [];
-    const orderedConfigs = [];
-    let stationTypeSelect = null;
-    let robotNumberConfig = null;
+    if (robotType === 'Robot') {
+      // ===== ЛОГИКА ДЛЯ ROBOT (без изменений) =====
+      const configs = extraSelectsConfig[robotType] || [];
+      const orderedConfigs = [];
+      let stationTypeSelect = null;
+      let robotNumberConfig = null;
 
-    blockLeft.append(label, select)
-    extraSelectsDiv.appendChild(blockLeft);
+      blockLeft.append(label, select);
+      extraSelectsDiv.appendChild(blockLeft);
 
-    for (let cfg of configs) {
-      if (cfg.id === 'robot_number') {
-        robotNumberConfig = cfg;
-      } else {
-        orderedConfigs.push(cfg);
+      for (let cfg of configs) {
+        if (cfg.id === 'robot_number') {
+          robotNumberConfig = cfg;
+        } else {
+          orderedConfigs.push(cfg);
+        }
       }
-    }
-    if (robotNumberConfig) orderedConfigs.push(robotNumberConfig);
+      if (robotNumberConfig) orderedConfigs.push(robotNumberConfig);
 
-    orderedConfigs.forEach(config => {
-      const wrapper = document.createElement('div');
-      wrapper.classList.add('extra-select-wrapper');
+      orderedConfigs.forEach(config => {
+        const wrapper = document.createElement('div');
+        wrapper.classList.add('extra-select-wrapper');
 
-      const lbl = document.createElement('label');
-      lbl.textContent = config.label;
-      lbl.classList.add('extra-label');
+        const lbl = document.createElement('label');
+        lbl.textContent = config.label;
+        lbl.classList.add('extra-label');
 
-      const sel = document.createElement('select');
-      sel.id = config.id;
-      sel.classList.add('todo-select');
+        const sel = document.createElement('select');
+        sel.id = config.id;
+        sel.classList.add('todo-select');
 
-      config.options.forEach(opt => {
-        const option = document.createElement('option');
-        option.value = opt;
-        option.textContent = opt;
-        sel.appendChild(option);
-      });
+        config.options.forEach(opt => {
+          const option = document.createElement('option');
+          option.value = opt;
+          option.textContent = opt;
+          sel.appendChild(option);
+        });
 
-      if (config.id === 'station_type') {
-        stationTypeSelect = sel;
-        sel.addEventListener('change', (e) => {
-          const selectedType = e.target.value;
-          const modelSelect = extraSelectsDiv.querySelector('#station_model');
-          if (modelSelect) {
-            const models = stationModels[selectedType] || [];
-            modelSelect.innerHTML = '';
-            models.forEach(model => {
-              const opt = document.createElement('option');
-              opt.value = model;
-              opt.textContent = model;
-              modelSelect.appendChild(opt);
-            });
-            const firstModel = modelSelect.value;
-            if (firstModel) {
-              const robotSelect = extraSelectsDiv.querySelector('#robot_number');
-              if (robotSelect) {
-                const robots = stationRobots[firstModel] || [];
-                robotSelect.innerHTML = '';
-                robots.forEach(robot => {
-                  const opt = document.createElement('option');
-                  opt.value = robot;
-                  opt.textContent = robot;
-                  robotSelect.appendChild(opt);
-                });
+        if (config.id === 'station_type') {
+          stationTypeSelect = sel;
+          sel.addEventListener('change', (e) => {
+            const selectedType = e.target.value;
+            const modelSelect = extraSelectsDiv.querySelector('#station_model');
+            if (modelSelect) {
+              const models = stationModels[selectedType] || [];
+              modelSelect.innerHTML = '';
+              models.forEach(model => {
+                const opt = document.createElement('option');
+                opt.value = model;
+                opt.textContent = model;
+                modelSelect.appendChild(opt);
+              });
+              const firstModel = modelSelect.value;
+              if (firstModel) {
+                const robotSelect = extraSelectsDiv.querySelector('#robot_number');
+                if (robotSelect) {
+                  const robots = stationRobots[firstModel] || [];
+                  robotSelect.innerHTML = '';
+                  robots.forEach(robot => {
+                    const opt = document.createElement('option');
+                    opt.value = robot;
+                    opt.textContent = robot;
+                    robotSelect.appendChild(opt);
+                  });
+                }
               }
             }
-          }
-        });
-      }
+          });
+        }
 
-      if (config.id === 'station_model') {
-        sel.addEventListener('change', (e) => {
-          const selectedModel = e.target.value;
-          const robotSelect = extraSelectsDiv.querySelector('#robot_number');
-          if (robotSelect) {
-            const robots = stationRobots[selectedModel] || [];
-            robotSelect.innerHTML = '';
-            robots.forEach(robot => {
-              const opt = document.createElement('option');
-              opt.value = robot;
-              opt.textContent = robot;
-              robotSelect.appendChild(opt);
-            });
-          }
-        });
-      }
+        if (config.id === 'station_model') {
+          sel.addEventListener('change', (e) => {
+            const selectedModel = e.target.value;
+            const robotSelect = extraSelectsDiv.querySelector('#robot_number');
+            if (robotSelect) {
+              const robots = stationRobots[selectedModel] || [];
+              robotSelect.innerHTML = '';
+              robots.forEach(robot => {
+                const opt = document.createElement('option');
+                opt.value = robot;
+                opt.textContent = robot;
+                robotSelect.appendChild(opt);
+              });
+            }
+          });
+        }
 
+        wrapper.appendChild(lbl);
+        wrapper.appendChild(sel);
+        extraSelectsDiv.appendChild(wrapper);
+      });
 
-      wrapper.appendChild(lbl);
-      wrapper.appendChild(sel);
-      extraSelectsDiv.appendChild(wrapper);
-    });
-
-    // Инициализация для первого типа станции (если есть station_type)
-    if (stationTypeSelect && robotType === 'Robot') {
-      const initialType = stationTypeSelect.value;
-      const modelSelect = extraSelectsDiv.querySelector('#station_model');
-      if (modelSelect) {
-        const models = stationModels[initialType] || [];
-        modelSelect.innerHTML = '';
-        models.forEach(model => {
-          const opt = document.createElement('option');
-          opt.value = model;
-          opt.textContent = model;
-          modelSelect.appendChild(opt);
-        });
-        const firstModel = modelSelect.value;
-        if (firstModel) {
-          const robotSelect = extraSelectsDiv.querySelector('#robot_number');
-          if (robotSelect) {
-            const robots = stationRobots[firstModel] || [];
-            robotSelect.innerHTML = '';
-            robots.forEach(robot => {
-              const opt = document.createElement('option');
-              opt.value = robot;
-              opt.textContent = robot;
-              robotSelect.appendChild(opt);
-            });
+      if (stationTypeSelect && robotType === 'Robot') {
+        const initialType = stationTypeSelect.value;
+        const modelSelect = extraSelectsDiv.querySelector('#station_model');
+        if (modelSelect) {
+          const models = stationModels[initialType] || [];
+          modelSelect.innerHTML = '';
+          models.forEach(model => {
+            const opt = document.createElement('option');
+            opt.value = model;
+            opt.textContent = model;
+            modelSelect.appendChild(opt);
+          });
+          const firstModel = modelSelect.value;
+          if (firstModel) {
+            const robotSelect = extraSelectsDiv.querySelector('#robot_number');
+            if (robotSelect) {
+              const robots = stationRobots[firstModel] || [];
+              robotSelect.innerHTML = '';
+              robots.forEach(robot => {
+                const opt = document.createElement('option');
+                opt.value = robot;
+                opt.textContent = robot;
+                robotSelect.appendChild(opt);
+              });
+            }
           }
         }
       }
+    }
+    // ========== GUN (НОВОЕ, с импортированными данными) ==========
+    else if (robotType === 'Gun') {
+      blockLeft.append(label, select);
+      extraSelectsDiv.appendChild(blockLeft);
+
+      // Селект выбора станции
+      const stationWrapper = document.createElement('div');
+      stationWrapper.classList.add('extra-select-wrapper');
+      const stationLabel = document.createElement('label');
+      stationLabel.textContent = 'Станция:';
+      stationLabel.classList.add('extra-label');
+      const stationSelect = document.createElement('select');
+      stationSelect.id = 'gun_station';
+      stationSelect.classList.add('todo-select');
+
+      gunStations.forEach(station => {
+        const opt = document.createElement('option');
+        opt.value = station.id;
+        opt.textContent = station.name;
+        stationSelect.appendChild(opt);
+      });
+
+      stationWrapper.appendChild(stationLabel);
+      stationWrapper.appendChild(stationSelect);
+      extraSelectsDiv.appendChild(stationWrapper);
+
+      // Селект выбора номера гана
+      const gunWrapper = document.createElement('div');
+      gunWrapper.classList.add('extra-select-wrapper');
+      const gunLabel = document.createElement('label');
+      gunLabel.textContent = 'Номер гана:';
+      gunLabel.classList.add('extra-label');
+      const gunSelect = document.createElement('select');
+      gunSelect.id = 'gun_number';
+      gunSelect.classList.add('todo-select');
+
+      gunWrapper.appendChild(gunLabel);
+      gunWrapper.appendChild(gunSelect);
+      extraSelectsDiv.appendChild(gunWrapper);
+
+      // Функция обновления списка ганов при смене станции
+      const updateGunNumbers = () => {
+        const stationId = stationSelect.value;
+        const station = gunStations.find(s => s.id === stationId);
+        const guns = station ? station.guns : [];
+
+        gunSelect.innerHTML = '';
+        guns.forEach(gun => {
+          const opt = document.createElement('option');
+          opt.value = gun;
+          opt.textContent = `Ган №${gun}`;
+          gunSelect.appendChild(opt);
+        });
+      };
+
+      stationSelect.addEventListener('change', updateGunNumbers);
+      updateGunNumbers(); // заполнить при первом открытии
+    }
+    // ========== CONI MA (пока пусто) ==========
+    else if (robotType === 'coni ma') {
+      blockLeft.append(label, select);
+      extraSelectsDiv.appendChild(blockLeft);
+      // TODO: добавить логику для coni ma
     }
   }
 
@@ -290,18 +355,18 @@ export const createItem = (obj, listArray) => {
   const itemButtonDelete = document.createElement('button');
   const divAutorItemPhoto = document.createElement("div");
 
+  const dateObj = new Date(obj.date);
+  const day = dateObj.getDate().toString().padStart(2, '0');
+  const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+  const year = dateObj.getFullYear().toString().slice(-2); // последние 2 цифры года
+  const hours = dateObj.getHours().toString().padStart(2, '0');
+  const minutes = dateObj.getMinutes().toString().padStart(2, '0');
+
+  itemDate.innerText = `${day}.${month}.${year}г. ${hours}:${minutes}`;
+
   itemDate.className = 'todo-item-date';
   divIcon.classList = "todo-item-icon"
   divAutorItemPhoto.classList = "todo-item-autor"
-  itemDate.innerText = new Date(obj.date).toLocaleString('ru-RU', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false
-  });
-
 
   item.classList.add('todo-item');
   itemContent.classList.add("todo-item-content")
@@ -336,8 +401,6 @@ export const createItem = (obj, listArray) => {
   } else {
     divAutorItemPhoto.style.backgroundColor = '#3a6ea5'; // цвет на случай если нет аватарки
   }
-
-  console.log(obj)
 
   if (obj.done) item.classList.add('todo-item--completed');
   if (obj.photo) itemBlock.append(itemButtonShowPhoto) // тут добавляю

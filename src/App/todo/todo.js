@@ -16,7 +16,6 @@ async function createTodoApp(container, listArray, updateCallback) {
 
   container.append(startTitle, selectsContainer, startForm.form, startList);
 
-
   buttonPhoto.onclick = async () => {
     const result = await window.api.selectFile();
     if (result && result.base64) {
@@ -49,34 +48,43 @@ async function createTodoApp(container, listArray, updateCallback) {
     const mainSelect = document.querySelector('#todo-select');
     const selectedMain = mainSelect ? mainSelect.value : '';
 
-    let stationType = '';
-    let stationModel = '';
-    let robotNumber = '';
+    let description = '';
 
     if (selectedMain === 'Robot') {
       const robotNumberSelect = document.querySelector('#robot_number');
-      const stationTypeSelect = document.querySelector('#station_type');
       const stationModelSelect = document.querySelector('#station_model');
-      robotNumber = robotNumberSelect ? robotNumberSelect.value : '';
-      stationType = stationTypeSelect ? stationTypeSelect.value : '';
-      stationModel = stationModelSelect ? stationModelSelect.value : '';
+
+      const robotNumber = robotNumberSelect ? robotNumberSelect.value : '';
+      const stationModel = stationModelSelect ? stationModelSelect.value : '';
+
+      description = `${stationModel}`;
+      if (robotNumber) description += `-R${robotNumber}`;
+      description += ` : ${inputValue}`;
+
     } else if (selectedMain === 'Gun') {
-      const pressureSelect = document.querySelector('#pressure');
-      const flowSelect = document.querySelector('#flow');
-      stationType = pressureSelect ? pressureSelect.value : '';
-      stationModel = flowSelect ? flowSelect.value : '';
+      const gunStationSelect = document.getElementById("gun_station");
+      const gunNumberSelect = document.getElementById("gun_number");
+
+      const stationName = gunStationSelect ? gunStationSelect.options[gunStationSelect.selectedIndex]?.textContent : '';
+      const gunNumber = gunNumberSelect ? gunNumberSelect.value : '';
+
+      description = `${stationName}`;
+      if (gunNumber) description += ` : Ган${gunNumber}`;
+      description += ` : ${inputValue}`;
+
     } else if (selectedMain === 'coni ma') {
       const programSelect = document.querySelector('#program');
       const speedArmSelect = document.querySelector('#speed_arm');
-      stationType = programSelect ? programSelect.value : '';
-      stationModel = speedArmSelect ? speedArmSelect.value : '';
+
+      const program = programSelect ? programSelect.value : '';
+      const speedArm = speedArmSelect ? speedArmSelect.value : '';
+
+      description = `${speedArm}`;
+      if (program) description += ` : ${program}`;
+      description += ` : ${inputValue}`;
     }
 
-    let description = `${selectedMain}`;
-    if (stationModel) description = `${stationModel}`;
-    if (robotNumber) description += `-R${robotNumber}`;
-    description += ` : ${inputValue}`;
-
+    // 👇 СОЗДАЁМ newObj ОДИН РАЗ И СРАЗУ С description
     const newObj = {
       id: createSpecialId(listArray),
       name: description,
@@ -87,7 +95,6 @@ async function createTodoApp(container, listArray, updateCallback) {
       authorId: user.windowsLogin,
       authorAvatar: user.avatarUrl || null
     };
-
 
     listArray.push(newObj);
 

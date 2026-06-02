@@ -2,6 +2,7 @@ import { todoList } from "../App/todo/todo.js";
 import { createContacts, createHeaderContent } from "../App/domComponents/dom.js";
 import { renderDashboard } from "../App/dashboard/dashboard.js"; // 👈 импорт дашборда
 import { hideLoader, showLoader } from "./loader/loader.js";
+import { createTableTearDown } from "../App/domComponents/tearDown/tearDown.js";
 let updateTimer = null;
 // ========== ПРОВЕРКА ИНТЕРНЕТА ПРИ СТАРТЕ ==========
 async function checkInternetAndWarn() {
@@ -82,10 +83,11 @@ window.refreshDashboardIfNeeded = async () => {
 async function initApp() {
   // Показываем лоадер при старте
   showLoader('Загрузка приложения...');
-
-  // 👇 ПРОВЕРКА ИНТЕРНЕТА
   const isOnline = await checkInternetAndWarn();
-  console.log(`🌐 Интернет: ${isOnline ? 'доступен' : 'НЕТ доступа'}`);
+  const btnProblems = document.getElementById("button-nav-problems");
+  const btnContacts = document.getElementById("button-nav-contacts");
+  const btnTearDown = document.getElementById("button-nav-tear-down")
+  const mainContainer = document.querySelector(".main-container");
 
   try {
     const [currentUser, usersData, issues] = await Promise.all([
@@ -95,35 +97,51 @@ async function initApp() {
     ]);
 
     await createHeaderContent(currentUser);
-    const mainContainer = document.querySelector(".main-container");
 
     // 🚀 Показываем дашборд при старте
     await renderDashboard(mainContainer, issues, usersData);
 
-    // Кнопка "Проблемы" — переключаем на todoList
-    const btnProblems = document.getElementById("button-nav-problems");
-    if (btnProblems) {
-      btnProblems.onclick = () => {
-        document.body.classList.remove('dashboard-active');
-        if (mainContainer) mainContainer.innerHTML = "";
-        todoList();
-      };
+    btnProblems.onclick = () => {
+      document.body.classList.remove('dashboard-active');
+      if (mainContainer) mainContainer.innerHTML = "";
+      todoList();
+    };
+
+    btnTearDown.onclick = () => {
+      document.body.classList.remove('dashboard-active');
+      if (mainContainer) mainContainer.innerHTML = "";
+      createTableTearDown(mainContainer, [
+        {
+          model: "T13J",
+          config: "2WD/STD",
+          area: "RF",
+          station: "M0090",
+          equipment: "R2",
+          pointNum: "48010", // Передаем чистый номер
+          importance: "Важно",
+          defectType: "Непровар / Разделение (Separation)",
+          details: "Деталь поставщика"
+        },
+        {
+          model: "T13J",
+          config: "2WD/STD",
+          area: "MB",
+          station: "M0010",
+          equipment: "R1",
+          pointNum: "10707",
+          importance: "Обычный",
+          defectType: "Малая точка / Small nugget",
+          details: ""
+        }
+      ])
     }
 
-    // Кнопка "Контакты" — переключаем на контакты
-    const btnContacts = document.getElementById("button-nav-contacts");
-    if (btnContacts) {
-      btnContacts.onclick = () => {
-        document.body.classList.remove('dashboard-active');
-        if (mainContainer) mainContainer.innerHTML = "";
-        showLoader('Загрузка контактов...');
-        try {
-          createContacts(usersData);
-        } finally {
-          hideLoader();
-        }
-      };
-    }
+    btnContacts.onclick = () => {
+      document.body.classList.remove('dashboard-active');
+      if (mainContainer) mainContainer.innerHTML = "";
+      createContacts(usersData);
+    };
+
   } catch (error) {
     console.error("Ошибка при инициализации приложения:", error);
   } finally {

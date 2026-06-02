@@ -66,7 +66,6 @@ ipcMain.handle('get-avatar-base64', async (event, filename) => {
   }
 });
 
-
 // 2. Определение зашедшего пользователя по Windows-логину
 ipcMain.handle('get-current-user', async () => {
   return identifyCurrentUser();

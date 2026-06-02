@@ -75,6 +75,15 @@ export const stationModels = {
   MB: ['MB-10', 'MB-40', 'MB-60', 'MB-70', 'MB-80', 'MB-90', 'MB-120']
 };
 
+export const gunStations = [
+  { id: 'bodyside_lh', name: 'Bodyside LH', guns: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16] },
+  { id: 'bodyside_rh', name: 'Bodyside RH', guns: [18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33] },
+  { id: 'floor', name: 'Floor', guns: [34,35,36,37,38,39,40,41,42] },
+  { id: 'engine', name: 'Engine', guns: [43,44,45,46,47,48,49,50,51,52,53,54,55,56] }
+];
+
+
+
 // Конфигурация дополнительных селектов (без изменений)
 export const extraSelectsConfig = {
   Robot: [
@@ -82,13 +91,4 @@ export const extraSelectsConfig = {
     { id: 'station_model', label: '№Станции:', options: [] },
     { id: 'robot_number', label: 'Робот №:', options: [] }
   ],
-  Gun: [
-    { id: 'pressure', label: 'Давление газа:', options: ['2 бар', '3 бар', '4 бар', '5 бар'] },
-    { id: 'flow', label: 'Расход:', options: ['5 л/мин', '7 л/мин', '10 л/мин'] }
-  ],
-  'coni ma': [
-    { id: 'program', label: 'Программа:', options: ['P001', 'P002', 'P003'] },
-    { id: 'speed_arm', label: 'Скорость манипулятора:', options: ['10%', '30%', '50%', '70%', '100%'] }
-  ]
 };
-
