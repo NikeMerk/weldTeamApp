@@ -2,6 +2,9 @@ import { stationModels, extraSelectsConfig, stationRobots } from "../api/dataArr
 import { createSect, createList, createForm, createItem, createFilters, createTitleTodo } from "../domComponents/dom.js";
 let currentPhoto = null;
 
+// 👇 ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ДЛЯ СЖАТИЯ ФОТО (Canvas)
+
+
 async function createTodoApp(container, listArray, updateCallback) {
   const user = await window.api.getCurrentUser();
 
@@ -16,7 +19,8 @@ async function createTodoApp(container, listArray, updateCallback) {
 
   container.append(startTitle, selectsContainer, startForm.form, startList);
 
-  buttonPhoto.onclick = async () => {
+  // 👇 ОБНОВЛЕННАЯ СТРАТЕГИЯ ВЫБОРА И СЖАТИЯ ФОТО
+buttonPhoto.onclick = async () => {
     const result = await window.api.selectFile();
     if (result && result.base64) {
       currentPhoto = result.filename;
@@ -84,7 +88,6 @@ async function createTodoApp(container, listArray, updateCallback) {
       description += ` : ${inputValue}`;
     }
 
-    // 👇 СОЗДАЁМ newObj ОДИН РАЗ И СРАЗУ С description
     const newObj = {
       id: createSpecialId(listArray),
       name: description,

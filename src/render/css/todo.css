@@ -282,7 +282,6 @@
 .todo-button-photo {
   width: 60px;
   height: 50px;
-  background-image: url("../../App/images/downImages.png");
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;

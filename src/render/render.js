@@ -2,7 +2,7 @@ import { todoList } from "../App/todo/todo.js";
 import { createContacts, createHeaderContent } from "../App/domComponents/dom.js";
 import { renderDashboard } from "../App/dashboard/dashboard.js"; // 👈 импорт дашборда
 import { hideLoader, showLoader } from "./loader/loader.js";
-import { createTableTearDown } from "../App/domComponents/tearDown/tearDown.js";
+import { mainPageTearDown } from "../App/domComponents/tearDown/tearDown.js";
 let updateTimer = null;
 // ========== ПРОВЕРКА ИНТЕРНЕТА ПРИ СТАРТЕ ==========
 async function checkInternetAndWarn() {
@@ -110,7 +110,7 @@ async function initApp() {
     btnTearDown.onclick = () => {
       document.body.classList.remove('dashboard-active');
       if (mainContainer) mainContainer.innerHTML = "";
-      createTableTearDown(mainContainer, [
+      mainPageTearDown(mainContainer, [
         {
           model: "T13J",
           config: "2WD/STD",

@@ -1,6 +1,6 @@
 import { createNewDown } from "./createNewDown.js";
 
-export function createTableTearDown(mainContainer) {
+export function mainPageTearDown(mainContainer) {
     if (!mainContainer) return;
 
     // Очищаем всё, чтобы построить новую структуру
@@ -48,7 +48,9 @@ export function createTableTearDown(mainContainer) {
 
     // Нажатие на кнопку "Создать новый отчет"
     btnCreate.onclick = () => {
-        createNewDown(mainContainer);
+        createNewDown(mainContainer, null, () => {
+            mainPageTearDown(mainContainer);
+        });
     };
 
     toolbar.appendChild(filterGroup);
@@ -95,7 +97,8 @@ function renderReports(dataArray, mainContainer) {
         infoRow.innerHTML = `
             <div class="td-loc-path">
                 <span class="td-model-name">${item.modelName}</span> 
-                <span class="td-config-badge">${item.config}</span>
+                <p class="td-vin">VIN:  ${item.vin}<p/>
+                <span class="td-config-badge">${item.config} </span>
             </div>
             <div class="td-defects-counter">
                 Дефектов: <span class="td-count-num">${item.defectsCount}</span>
@@ -140,9 +143,10 @@ function filterReports(modelId) {
 const mockReportsData = [
     {
         modelCode: "T13",
-        modelName: "T13 (Jaecoo 6)",
+        modelName: "T13 (J6)",
         config: "2WD/STD",
         area: "RF",
+        vin: 123456,
         station: "M0090",
         equipment: "R2",
         defectsCount: 8, // Сколько проблемных точек внутри
@@ -151,9 +155,10 @@ const mockReportsData = [
     },
     {
         modelCode: "M32",
-        modelName: "M32 (EXEED)",
+        modelName: "M32 ()",
         config: "4WD/LUX",
         area: "MB",
+        vin: 123456,
         station: "M0010",
         equipment: "R1",
         defectsCount: 3,
@@ -165,10 +170,59 @@ const mockReportsData = [
         modelName: "T1EJ (Jaecoo 7)",
         config: "2WD/COMF",
         area: "Side",
+        vin: 123456,
         station: "S0040",
         equipment: "R4",
         defectsCount: 14,
         importance: "Важно",
         date: "02.06.2026"
-    }
+    },
+    // {
+    //     id: createSpecialId(listArray),
+    //     name: description,
+    //     done: false,
+    //     date: new Date().toISOString(),
+    //     type: selectedMain,
+    //     photo: currentPhoto || null,
+    //     authorId: user.windowsLogin,
+    //     authorAvatar: user.avatarUrl || null
+    // }
+    // const finalReport = {
+    // // 1. Паспорт автомобиля (Заполняется в Блоке 1)
+    // id: "rep_" + Date.now(),             // Уникальный ID самого отчета
+    // modelCode: "T13",                    // Код модели для фильтров (T13, M32...)
+    // modelName: "T13 (Jaecoo 6)",         // Красивое имя для карточки
+    // config: "2WD/STD",                   // Комплектация
+    // vinNumber: "XTA211000XXXXXXXX",      // VIN-номер машины
+
+    // // 2. Локация на производстве (Заполняется в Блоке 2)
+    // area: "RF",                          // Участок
+    // station: "M0090",                    // Станция
+    // equipment: "R2",                     // Робот
+
+    // // 3. Мета-данные для главного экрана
+    // date: new Date().toLocaleDateString('ru-RU'), // Дата создания отчета
+    // defectsCount: 0,                     // Сюда перед сохранением запишем currentReportPoints.length
+    // importance: "Обычный",               // Если хоть одна точка "Важно", запишем "Важно"
+
+    // // 4. МАССИВ ТОЧЕК (Заполняется в Блоке 3)
+    // // Сюда мы просто вставляем весь наш массив currentReportPoints!
+    // points: [
+    //     {
+    //         id: 1717438400000,
+    //         pointNum: "48010",
+    //         defectType: "Непровар / Разделение",
+    //         importance: "Важно",
+    //         details: "Деталь поставщика"
+    //     },
+    //     {
+    //         id: 1717438415000,
+    //         pointNum: "48012",
+    //         defectType: "Малый размер точки",
+    //         importance: "Обычный",
+    //         details: ""
+    //     }
+    // ]
+
+
 ];

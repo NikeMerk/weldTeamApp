@@ -226,6 +226,18 @@
     font-weight: bold;
 }
 
+.td-vin {
+    background-color: #59cd1aa1;
+    display: inline-block;
+    color: #ffffff;
+    font-size: 14px;
+    margin-right: 10px;
+    margin-left: 5px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
 .td-btn-back:hover {
     background-color: #3d2f61;
     color: #fff;
@@ -268,7 +280,7 @@
 }
 
 .td-form-row-grid.tripple {
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 0fr 0fr 1fr;
 }
 
 /* Элементы ввода */
@@ -417,4 +429,17 @@
 
 .td-btn-submit:hover {
     background-color: #27ae60;
+}
+
+.td-btn-photo {
+    margin-top: 15px;
+    width: 100%;
+    background-color: transparent;
+    border: 1px solid #00ffcc;
+    color: #00ffcc;
+    padding: 10px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
 }

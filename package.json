@@ -12,6 +12,7 @@
     "electron-packager": "17.1.2"
   },
   "dependencies": {
+    "browser-image-compression": "^2.0.2",
     "topbar": "^3.0.1"
   }
 }
