@@ -285,6 +285,7 @@
 
 /* Элементы ввода */
 .td-input-group {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -302,9 +303,12 @@
     border: 1px solid #3d2f61;
     border-radius: 6px;
     padding: 10px;
+    padding-right: 35px;
+    /* Резервируем место справа, чтобы цифры не лезли на галочку */
     color: #fff;
     font-size: 14px;
     outline: none;
+    box-sizing: border-box;
 }
 
 .td-input-group input:focus,
@@ -442,4 +446,24 @@
     font-weight: bold;
     cursor: pointer;
     transition: all 0.2s;
+}
+
+/* Базовые стили для инпута, чтобы иконка не накладывалась на текст */
+/* Дефолтные стили для инпута (добавлено padding-right, чтобы текст не залезал на галочку) */
+
+/* Класс, который добавляется при 6 символах */
+.input-success {
+    border-color: #28a745 !important;
+}
+
+.td-input-group:has(input.input-success)::after {
+    content: "✓"; /* Текстовый символ галочки */
+    position: absolute;
+    right: 12px;
+    top: 45%;
+    /* transform: translateY(-50%); */
+    color: #28a745;
+    font-size: 18px;
+    font-weight: bold;
+    pointer-events: none; /* чтобы галочка не мешала кликать по инпуту */
 }

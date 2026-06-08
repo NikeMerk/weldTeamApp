@@ -128,97 +128,93 @@ export function createNewDown(mainContainer, existingReport = null, mainPageTear
         };
     }
 
-    document.getElementById('btn-add-point-to-list').addEventListener('click', () => {
-        const pointNum = document.getElementById('add-point-num');
-        const defect = document.getElementById('add-point-defect');
-        const importance = document.getElementById('add-point-importance');
-        const details = document.getElementById('add-point-details');
-        const vinInput = document.getElementById('form-vin');
+    document.getElementById('btn-add-point-to-list').addEventListener('click', async () => {
+    const pointNum = document.getElementById('add-point-num');
+    const defect = document.getElementById('add-point-defect');
+    const importance = document.getElementById('add-point-importance');
+    const details = document.getElementById('add-point-details');
+    const vinInput = document.getElementById('form-vin');
 
-        // Получаем сами элементы селектов, чтобы прочитать их значения
-        const modelEl = document.getElementById('form-model');
-        const driveEl = document.getElementById('form-drive');
-        const configEl = document.getElementById('form-config');
+    const modelEl = document.getElementById('form-model');
+    const driveEl = document.getElementById('form-drive');
+    const configEl = document.getElementById('form-config');
 
-        // Валидация паспорта машины перед первой точкой
-        if (!modelEl.value) { showConfirmAlert('Выберите модель автомобиля!'); return; }
-        if (!driveEl.value) { showConfirmAlert('Выберите привод!'); return; }
-        if (!configEl.value) { showConfirmAlert('Выберите комплектацию!'); return; }
+    // 1. Валидация
+    if (!modelEl.value) { showConfirmAlert('Выберите модель автомобиля!'); return; }
+    if (!driveEl.value) { showConfirmAlert('Выберите привод!'); return; }
+    if (!configEl.value) { showConfirmAlert('Выберите комплектацию!'); return; }
+    if (!vinInput.value.trim() || vinInput.value.trim().length !== 6) {
+        showConfirmAlert('VIN-номер должен быть 6 символов!');
+        vinInput.focus();
+        return;
+    }
+    if (!pointNum.value || !defect.value) {
+        showConfirmAlert('Заполните номер точки и тип дефекта!');
+        return;
+    }
 
-        if (!vinInput.value.trim() || vinInput.value.trim().length !== 6) {
-            showConfirmAlert('VIN-номер должен быть 6 символов!');
-            vinInput.focus();
-            return;
-        }
-        if (!pointNum.value || !defect.value) {
-            showConfirmAlert('Заполните номер точки и тип дефекта!');
-            return;
-        }
+    // 2. Получаем текущие значения локации
+    let areaValue = categorySelect.value || "—";
+    let stationValue = "—";
+    let equipmentValue = "—";
 
-        // 2. ЕСЛИ ЭТО САМАЯ ПЕРВАЯ ТОЧКА — СОЗДАЕМ ГЛАВНЫЙ ОБЪЕКТ АВТОМОБИЛЯ
-        if (objectTearDown === null) {
+    if (categorySelect.value === 'Robot') {
+        stationValue = document.getElementById('td-robot-station-model')?.value || "—";
+        equipmentValue = document.getElementById('td-robot-number')?.value ? 'R' + document.getElementById('td-robot-number').value : "—";
+    } else if (categorySelect.value === 'Gun') {
+        const gunStationId = document.getElementById('td-gun-station')?.value;
+        const foundStation = gunStations.find(s => s.id === gunStationId);
+        stationValue = foundStation ? foundStation.name : "—";
+        equipmentValue = document.getElementById('td-gun-number')?.value ? 'Ган ' + document.getElementById('td-gun-number').value : "—";
+    } else if (categorySelect.value === 'Supplier') {
+        stationValue = "Поставка";
+        equipmentValue = document.getElementById('td-supplier')?.value || "—";
+    }
 
-            // Логика сбора данных по локации в зависимости от выбранного Раздела (Robot/Gun/Supplier)
-            let areaValue = categorySelect.value || "—";
-            let stationValue = "—";
-            let equipmentValue = "—";
+    // 3. СОЗДАЁМ ТОЧКУ
+    const newPoint = {
+        id: crypto.randomUUID(),
+        pointNum: pointNum.value,
+        defectType: defect.value,
+        importance: importance.value,
+        details: details.value,
+        photo: currentPointPhoto,
+        area: areaValue,
+        station: stationValue,
+        equipment: equipmentValue
+    };
 
-            if (categorySelect.value === 'Robot') {
-                stationValue = document.getElementById('td-robot-station-model')?.value || "—";
-                equipmentValue = document.getElementById('td-robot-number')?.value ? 'R' + document.getElementById('td-robot-number').value : "—";
-            } else if (categorySelect.value === 'Gun') {
-                const gunStationId = document.getElementById('td-gun-station')?.value;
-                const foundStation = gunStations.find(s => s.id === gunStationId);
-                stationValue = foundStation ? foundStation.name : "—";
-                equipmentValue = document.getElementById('td-gun-number')?.value ? 'Ган ' + document.getElementById('td-gun-number').value : "—";
-            } else if (categorySelect.value === 'Supplier') {
-                stationValue = "Поставка";
-                equipmentValue = document.getElementById('td-supplier')?.value || "—";
-            }
-
-            // Создаем объект строго по вашим правилам
-            objectTearDown = {
-                id: "rep_" + Date.now(),
-                modelCode: modelEl.value, // Короткий код для фильтра (например: T13)
-                // ИСПРАВЛЕНО: Правильное чтение текста выбранного option
-                modelName: modelEl.options[modelEl.selectedIndex].text, // Красивое имя (T13 (J6))
-                config: `${driveEl.value}/${configEl.value}`, // Склеиваем привод и комплектацию (2WD/STD)
-                vinNumber: vinInput.value.trim().toUpperCase(), // 6 знаков
-                area: areaValue,
-                station: stationValue,
-                equipment: equipmentValue,
-                date: new Date().toLocaleDateString('ru-RU'),
-                points: [] // Сюда полетят дефекты
-            };
-
-            // Блокируем поля информации об автомобиле
-            vinInput.disabled = true;
-            modelEl.disabled = true;
-            driveEl.disabled = true;
-            configEl.disabled = true;
-
-            // Блокируем динамические поля локации
-
-        }
-
-        // 3. СОЗДАЕМ И ПУШИМ ОБЪЕКТ ТОЧКИ (Используем ваши переменные)
-        const newPoint = {
-            id: Date.now(),
-            pointNum: pointNum.value,
-            defectType: defect.value,
-            importance: importance.value,
-            details: details.value,
-            photo: currentPointPhoto || null
+    // 4. ЕСЛИ ЭТО ПЕРВАЯ ТОЧКА — создаём объект автомобиля
+    if (objectTearDown === null) {
+        objectTearDown = {
+            id: crypto.randomUUID(),
+            modelName: modelEl.options[modelEl.selectedIndex].text,
+            config: `${driveEl.value}/${configEl.value}`,
+            vinNumber: vinInput.value.trim().toUpperCase(),
+            date: new Date().toLocaleDateString('ru-RU'),
+            points: []
         };
 
-        objectTearDown.points.push(newPoint);
+        // Блокируем поля автомобиля
+        vinInput.disabled = true;
+        modelEl.disabled = true;
+        driveEl.disabled = true;
+        configEl.disabled = true;
+    }
 
-        // Очищаем поля ввода
+    // 5. ДОБАВЛЯЕМ ТОЧКУ В ЛОКАЛЬНЫЙ МАССИВ
+    objectTearDown.points.push(newPoint);
+
+    // 6. ОТПРАВЛЯЕМ ВЕСЬ ОТЧЁТ НА СЕРВЕР
+    const result = await window.api.saveTeardownReport(objectTearDown);
+
+    // 7. ПРОВЕРЯЕМ ОТВЕТ
+    if (result && result.success) {
+        // Успех — очищаем поля и перерисовываем
         pointNum.value = '';
         defect.value = '';
         details.value = '';
 
-        // ✅ СБРАСЫВАЕМ ФОТО
         currentPointPhoto = null;
         const photoBtn = document.getElementById('btn-point-photo');
         if (photoBtn) {
@@ -227,10 +223,25 @@ export function createNewDown(mainContainer, existingReport = null, mainPageTear
             photoBtn.style.borderColor = '#444';
         }
 
-        // Обновляем UI
         updateTemporaryPointsUI();
-        pointNum.focus();
-    });
+    } else {
+        // Ошибка — откатываем добавление точки
+        objectTearDown.points.pop();
+        
+        // Если точек не осталось — сбрасываем объект и разблокируем поля
+        if (objectTearDown.points.length === 0) {
+            objectTearDown = null;
+            vinInput.disabled = false;
+            modelEl.disabled = false;
+            driveEl.disabled = false;
+            configEl.disabled = false;
+        }
+        
+        showConfirmAlert('Ошибка при сохранении отчёта: ' + (result?.error || 'неизвестная ошибка'));
+    }
+
+    pointNum.focus();
+});
 
     document.getElementById('btn-save-full-report').addEventListener('click', () => {
         if (!objectTearDown || objectTearDown.points.length === 0) {
@@ -500,6 +511,22 @@ function createVehicleReportForm(formWrapper) {
     saveBtn.id = 'btn-save-full-report';
     saveBtn.textContent = 'Сохранить отчет';
 
+    vinInput.addEventListener("input", function (e) {
+        // 1. Удаляем всё, кроме цифр (буквы, пробелы, знаки препинания)
+        const digitsOnly = e.target.value.replace(/\D/g, '');
+
+        // Перезаписываем значение в инпуте, чтобы пользователь видел только цифры
+        e.target.value = digitsOnly;
+
+        // 2. Проверяем длину получившейся строки из чистых цифр
+        if (digitsOnly.length === 6) {
+            e.target.classList.add('input-success');
+        } else {
+            e.target.classList.remove('input-success');
+        }
+
+    })
+
     actionsDiv.appendChild(saveBtn);
     formWrapper.appendChild(actionsDiv);
 }
@@ -541,20 +568,20 @@ function updateLocationFields(categorySelect, dynamicContainer) {
         dynamicContainer.innerHTML = `
             <div class="td-form-row-grid tripple">
                 <div class="td-input-group">
-                    <label>Тип станции</label>
+                    <label>Участок</label>
                     <select id="td-robot-station-type">
                         <option value="">-- Выберите тип --</option>
                         ${Object.keys(stationModels).map(type => `<option value="${type}">${type}</option>`).join('')}
                     </select>
                 </div>
                 <div class="td-input-group td-hidden" id="td-robot-model-group">
-                    <label>Модель станции</label>
+                    <label>№ станции</label>
                     <select id="td-robot-station-model">
                         <option value="">-- сначала выберите тип --</option>
                     </select>
                 </div>
                 <div class="td-input-group td-hidden" id="td-robot-number-group">
-                    <label>Номер робота</label>
+                    <label>№ робота</label>
                     <select id="td-robot-number">
                         <option value="">-- сначала выберите модель --</option>
                     </select>
@@ -641,9 +668,54 @@ function updateLocationFields(categorySelect, dynamicContainer) {
 }
 
 function updateTemporaryPointsUI() {
+    const containerListPointer = document.querySelector(".td-added-points-list")
     const listPoint = document.createElement("ul");
-    const item = document.createElement("li");
-    const textLocation = document.getElementById("td-category option:checked").textContent
-    console.log(textLocation)
+    objectTearDown.points.map(obj => {
+        listPoint.append(renderPointsItems(obj))
+    })
+    containerListPointer.append(listPoint)
+}
 
+function renderPointsItems(arrPoinst) {
+    const item = document.createElement("li");
+    const leftBlock = document.createElement('div');
+    const pointNumSpan = document.createElement('span');
+    const defectSpan = document.createElement('span');
+    const detailsSpan = document.createElement('span');
+    const photoSpan = document.createElement('span');
+    const centerBlock = document.createElement('div');
+    const locationText = document.createElement('span');
+    const delBtn = document.createElement('button');
+    item.className = 'td-point-item';
+
+    // Левая часть: номер, тип дефекта, подробности, фото
+    leftBlock.className = 'td-point-left';
+    pointNumSpan.className = 'td-point-num';
+    defectSpan.className = 'td-point-defect';
+    detailsSpan.className = 'td-point-details';
+    photoSpan.className = 'td-point-photo';
+    centerBlock.className = 'td-point-location';
+    locationText.className = 'td-point-location-text';
+    delBtn.className = 'td-point-del-btn';
+
+    photoSpan.textContent = '📸';
+    photoSpan.style.display = 'none'; // скрыто, если фото нет
+
+    // Центральная часть: локация (раздел → станция → оборудование)
+    // Правая часть: кнопка удаления
+    delBtn.textContent = '×';
+
+    // Сборка
+    leftBlock.appendChild(pointNumSpan);
+    leftBlock.appendChild(defectSpan);
+    leftBlock.appendChild(detailsSpan);
+    leftBlock.appendChild(photoSpan);
+
+    centerBlock.appendChild(locationText);
+
+    item.appendChild(leftBlock);
+    item.appendChild(centerBlock);
+    item.appendChild(delBtn);
+
+    return item
 }
