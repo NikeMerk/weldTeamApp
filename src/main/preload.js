@@ -11,7 +11,7 @@ contextBridge.exposeInMainWorld('api', {
   checkInternet: () => ipcRenderer.invoke('check-internet'),
   saveTeardownReport: (report) => ipcRenderer.invoke('save-teardown-report', report),
   loadTeardownReports: () => ipcRenderer.invoke('load-teardown-reports'),
-
+  deleteTeardownPoint: (reportId, pointId) => ipcRenderer.invoke('delete-teardown-point', { reportId, pointId }),
 
   // Добавляем новые мосты для работы с пользователями:
   getCurrentUser: () => ipcRenderer.invoke('get-current-user'), // получить того, кто за компом

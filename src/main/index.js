@@ -60,6 +60,39 @@ function watchTeardownFile() {
   });
 }
 
+ipcMain.handle('delete-teardown-point', async (event, data) => {
+  console.log("hello world")
+  const { reportId, pointId } = data;
+
+  try {
+    let reports = [];
+    if (fs.existsSync(TEARDOWN_DATA_PATH)) {
+      reports = JSON.parse(fs.readFileSync(TEARDOWN_DATA_PATH, 'utf-8'));
+    }
+
+    const reportIndex = reports.findIndex(r => r.id === reportId);
+    if (reportIndex === -1) {
+      return { success: false, error: 'Отчёт не найден' };
+    }
+
+    const pointIndex = reports[reportIndex].points.findIndex(p => p.id === pointId);
+    if (pointIndex === -1) {
+      return { success: false, error: 'Точка не найдена' };
+    }
+
+    // Удаляем точку
+    reports[reportIndex].points.splice(pointIndex, 1);
+
+    // Сохраняем
+    fs.writeFileSync(TEARDOWN_DATA_PATH, JSON.stringify(reports, null, 2));
+
+    return { success: true, updatedPoints: reports[reportIndex].points };
+
+  } catch (err) {
+    console.error('Ошибка удаления точки:', err);
+    return { success: false, error: err.message };
+  }
+});
 // ========== IPC ОБРАБОТЧИКИ ==========
 ipcMain.handle('get-avatar-base64', async (event, filename) => {
   try {
@@ -132,7 +165,16 @@ ipcMain.handle('check-internet', async () => {
 ipcMain.handle('load-teardown-reports', async () => {
   try {
     if (fs.existsSync(TEARDOWN_DATA_PATH)) {
-      return JSON.parse(fs.readFileSync(TEARDOWN_DATA_PATH, 'utf-8'));
+      const data = fs.readFileSync(TEARDOWN_DATA_PATH, 'utf-8');
+      const reports = JSON.parse(data);
+
+      // ✅ ЗАЩИТА: проверяем, что прочитали массив
+      if (!Array.isArray(reports)) {
+        console.error('❌ teardown.json содержит не массив, а:', typeof reports);
+        return [];
+      }
+
+      return reports;
     }
   } catch (err) {
     console.error('Ошибка чтения teardown.json:', err);
@@ -142,28 +184,37 @@ ipcMain.handle('load-teardown-reports', async () => {
 
 ipcMain.handle('save-teardown-report', async (event, report) => {
   try {
+    // ❌ ЗАЩИТА: не сохраняем, если нет точек
+    if (!report.points || report.points.length === 0) {
+      console.error('❌ Ошибка: попытка сохранить отчёт без точек!');
+      return { success: false, error: 'Нельзя сохранить пустой отчёт' };
+    }
+
+    // ❌ ЗАЩИТА: не сохраняем, если нет модели
+    if (!report.modelName || !report.vinNumber) {
+      console.error('❌ Ошибка: отчёт без модели или VIN');
+      return { success: false, error: 'Не заполнены обязательные поля' };
+    }
+
     let reports = [];
     if (fs.existsSync(TEARDOWN_DATA_PATH)) {
       reports = JSON.parse(fs.readFileSync(TEARDOWN_DATA_PATH, 'utf-8'));
     }
 
-    // Найти индекс отчёта с таким же id
     const index = reports.findIndex(r => r.id === report.id);
     if (index !== -1) {
-      reports[index] = report; // обновить существующий
+      reports[index] = report;
     } else {
-      reports.push(report); // добавить новый
+      reports.push(report);
     }
 
-    // Сохранить в файл
     const dir = path.dirname(TEARDOWN_DATA_PATH);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     fs.writeFileSync(TEARDOWN_DATA_PATH, JSON.stringify(reports, null, 2));
 
-    // Обновить время последнего сохранения (если используется watch)
     lastTeardownSaveTime = Date.now();
-
     return { success: true };
+
   } catch (err) {
     console.error('Ошибка сохранения teardown.json:', err);
     return { success: false, error: err.message };
