@@ -132,7 +132,6 @@ body.dashboard-active::before {
 /* Создаем сетку: сайдбар слева, контент справа */
 .app-grid {
   display: grid;
-  padding: 15px;
   grid-template-columns: 225px 1fr;
   /* Ширина сайдбара 260px */
   height: 100vh;
@@ -145,10 +144,6 @@ body.dashboard-active::before {
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-}
-
-.sidebar {
-  padding: 20px;
 }
 
 .sidebar,
@@ -169,6 +164,8 @@ body.dashboard-active::before {
 
 
 .sidebar {
+  display: flex;
+  flex-direction: column;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -229,6 +226,29 @@ body.dashboard-active::before {
   position: relative;
   display: inline-block;
   margin-bottom: 66px;
+}
+
+/* Блок пользователя внизу сайдбара */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 12px;
+  border-top: 1px solid #2a2a3a;
+  margin-top: auto;
+  white-space: nowrap;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  background: #2a2a3a;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #00bcd4;
 }
 
 .link-logo .logo {
@@ -301,19 +321,24 @@ body.dashboard-active::before {
   width: 100%;
   left: 0;
 }
-
+.sidebar__nav {
+  padding: 15px;
+}
 .avatar-client {
-  position: absolute;
-  right: 4%;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 75px;
-  height: 75px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   background-image: url("../../App/images/userPhoto/slava.jpeg");
   background-position: center;
   background-size: 100%;
   background-repeat: no-repeat;
+}
+
+.user-name {
+  padding: 0;
+  margin: 0;
+  font-size: 12px;
+  color: white;
 }
 
 /* main */

@@ -372,7 +372,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    max-height: 200px;
+    max-height: 440px;
     overflow-y: auto;
 }
 
@@ -457,7 +457,8 @@
 }
 
 .td-input-group:has(input.input-success)::after {
-    content: "✓"; /* Текстовый символ галочки */
+    content: "✓";
+    /* Текстовый символ галочки */
     position: absolute;
     right: 12px;
     top: 45%;
@@ -465,5 +466,180 @@
     color: #28a745;
     font-size: 18px;
     font-weight: bold;
-    pointer-events: none; /* чтобы галочка не мешала кликать по инпуту */
+    pointer-events: none;
+    /* чтобы галочка не мешала кликать по инпуту */
 }
+
+/* ========== TIMELINE + АККОРДЕОН ========== */
+
+/* Контейнер списка */
+.td-points-list {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Вертикальная линия */
+.td-points-list::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    bottom: 20px;
+    width: 2px;
+    background: linear-gradient(to bottom, #00bcd4, #ff9800, #00bcd4);
+    border-radius: 2px;
+}
+
+/* Один элемент таймлайна */
+.timeline-item {
+    position: relative;
+    padding-left: 56px;
+    padding-bottom: 24px;
+}
+
+/* Маркер (кружок на линии) */
+.timeline-marker {
+    position: absolute;
+    left: 14px;
+    top: 8px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #1e1e2f;
+    border: 2px solid #00bcd4;
+    z-index: 1;
+    transition: all 0.2s;
+}
+
+.timeline-item.important .timeline-marker {
+    border-color: #ff9800;
+    box-shadow: 0 0 6px #ff9800;
+}
+
+/* Карточка */
+.timeline-card {
+    background: #1e1e2f;
+    border-radius: 14px;
+    border: 1px solid #2a2a3a;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.timeline-card:hover {
+    background: #25253a;
+    border-color: #00bcd4;
+}
+
+/* Шапка карточки */
+.timeline-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+}
+
+.timeline-card-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.timeline-num {
+    font-weight: 700;
+    font-size: 14px;
+    color: #00bcd4;
+    font-family: monospace;
+}
+
+.timeline-defect {
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+}
+
+.timeline-card-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.timeline-importance {
+    font-size: 14px;
+}
+
+.timeline-photo-icon {
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.timeline-photo-icon:hover {
+    transform: scale(1.1);
+}
+
+.timeline-arrow {
+    color: #888;
+    font-size: 12px;
+    transition: transform 0.2s;
+}
+
+.timeline-item.open .timeline-arrow {
+    transform: rotate(180deg);
+}
+
+/* КОНТЕНТ (раскрывается) */
+.timeline-card-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    padding: 0 18px;
+}
+
+.timeline-item.open .timeline-card-content {
+    max-height: 300px;
+    padding: 0 18px 18px 18px;
+}
+
+/* Детали */
+.timeline-detail-row {
+    display: flex;
+    gap: 12px;
+    font-size: 13px;
+    padding: 6px 0;
+    border-bottom: 1px solid #2a2a3a;
+}
+
+.timeline-detail-row:last-child {
+    border-bottom: none;
+}
+
+.timeline-detail-label {
+    min-width: 120px;
+    color: #888;
+}
+
+.timeline-detail-value {
+    color: #e0e0e0;
+    word-break: break-word;
+}
+
+/* Кнопка удаления */
+.timeline-delete-btn {
+    background: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 12px;
+}
+
+.timeline-delete-btn:hover {
+    background: #cc0000;
+}
+

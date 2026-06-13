@@ -482,7 +482,8 @@ function createVehicleReportForm(formWrapper) {
         { value: '', text: '-- Выберите тип --' },
         { value: 'Непровар', text: 'Непровар' },
         { value: 'Малое ядро', text: 'Малое ядро' },
-        { value: 'Прожог', text: 'Прожог' }
+        { value: 'Прожог', text: 'Прожог' },
+        { value: 'Смещение', text: 'Смещение' }
     ]);
     defectGroup.appendChild(defectSelect);
     adderGrid.appendChild(defectGroup);
@@ -709,85 +710,121 @@ function updateLocationFields(categorySelect, dynamicContainer) {
 }
 
 function updateTemporaryPointsUI() {
-    const containerListPointer = document.querySelector(".td-empty-points-stub")
-    containerListPointer.innerHTML = ""
-    objectTearDownData.points.map(obj => {
-        containerListPointer.append(renderPointsItems(obj))
-    })
+    // Ищем правильный контейнер для списка точек
+    const container = document.querySelector('.td-added-points-list');
+    if (!container) return;
+
+    // Очищаем контейнер
+    container.innerHTML = '';
+
+    if (!objectTearDownData || objectTearDownData.points.length === 0) {
+        container.innerHTML = '<div class="td-empty-points-stub">Точки еще не добавлены.</div>';
+        return;
+    }
+
+    // Создаём список с правильным классом для таймлайна
+    const list = document.createElement('div');
+    list.className = 'td-points-list';  // ← нужен для вертикальной линии
+
+    objectTearDownData.points.forEach(point => {
+        list.appendChild(renderPointsItems(point));
+    });
+
+    container.appendChild(list);
 }
 
-function renderPointsItems(objPiont) {
-    const item = document.createElement("div");
-    const pointNumSpan = document.createElement('span'); // number piont
-    const defectSpan = document.createElement('span'); // type of diffects
-    const detailsSpan = document.createElement('span'); // comments
-    const photoSpan = document.createElement('span'); // photo
-    const locationText = document.createElement('span'); // lacation
-    const buttonDeletePiont = document.createElement('button'); // button delete piont
+function renderPointsItems(point) {
+    // Элемент timeline
+    const timelineItem = document.createElement('div');
+    timelineItem.className = 'timeline-item';
+    if (point.importance === 'Важно') {
+        timelineItem.classList.add('important');
+    }
 
-    item.className = 'td-point-item';
-    pointNumSpan.className = 'td-point-num';
-    defectSpan.className = 'td-point-defect';
-    detailsSpan.className = 'td-point-details';
-    photoSpan.className = 'td-point-photo';
-    locationText.className = 'td-point-location-text';
-    buttonDeletePiont.className = 'td-point-del-btn';
+    // Маркер (кружок на линии)
+    const marker = document.createElement('div');
+    marker.className = 'timeline-marker';
+    timelineItem.appendChild(marker);
 
-    // area: "Robot"
-    // station: "MB-10"
-    // equipment: "R1"
-    // pointNum: "123123"
-    // defectType: "Прожог"
-    // importance: "Важно"
-    // details: "comment"
-    // photo: null
-    // id: "ce10d330-f27d-4ec9-842f-1c1858ea2fc3"
+    // КАРТОЧКА (кликабельная)
+    const card = document.createElement('div');
+    card.className = 'timeline-card';
 
-    pointNumSpan.textContent = objPiont.area
-    locationText.textContent = objPiont.station
-    defectSpan.textContent = objPiont.defectType
-    detailsSpan.textContent = objPiont.details
+    // Шапка карточки (видна всегда)
+    const cardHeader = document.createElement('div');
+    cardHeader.className = 'timeline-card-header';
+    cardHeader.innerHTML = `
+        <div class="timeline-card-left">
+            <span class="timeline-num">#${point.pointNum}</span>
+            <span class="timeline-defect">${point.defectType}</span>
+        </div>
+        <div class="timeline-card-right">
+            ${point.importance === 'Важно' ? '<span class="timeline-importance">⚠️</span>' : ''}
+            ${point.photo ? '<span class="timeline-photo-icon">📸</span>' : ''}
+            <span class="timeline-arrow">▼</span>
+        </div>
+    `;
 
-    buttonDeletePiont.addEventListener('click', async () => {
-        // Показываем лоадер на кнопке
-        buttonDeletePiont.textContent = '...';
-        buttonDeletePiont.disabled = true;
+    // КОНТЕНТ (раскрывается)
+    const cardContent = document.createElement('div');
+    cardContent.className = 'timeline-card-content';
+    cardContent.innerHTML = `
+        <div class="timeline-detail-row">
+            <span class="timeline-detail-label">📝 Подробности:</span>
+            <span class="timeline-detail-value">${point.details || '—'}</span>
+        </div>
+        <div class="timeline-detail-row">
+            <span class="timeline-detail-label">📍 Раздел:</span>
+            <span class="timeline-detail-value">${point.area || '—'}</span>
+        </div>
+        <div class="timeline-detail-row">
+            <span class="timeline-detail-label">🏭 Станция / Модель:</span>
+            <span class="timeline-detail-value">${point.station || '—'}</span>
+        </div>
+        <div class="timeline-detail-row">
+            <span class="timeline-detail-label">🤖 Оборудование:</span>
+            <span class="timeline-detail-value">${point.equipment || '—'}</span>
+        </div>
+    `;
 
-        const result = await window.api.deleteTeardownPoint(objectTearDownData.id, objPiont.id);
-
+    // Кнопка удаления
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'timeline-delete-btn';
+    deleteBtn.textContent = 'Удалить точку';
+    deleteBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const result = await window.api.deleteTeardownPoint(objectTearDownData.id, point.id);
         if (result && result.success) {
-            // Удаляем точку из локального массива
-            const index = objectTearDownData.points.findIndex(p => p.id === objPiont.id);
+            const index = objectTearDownData.points.findIndex(p => p.id === point.id);
             if (index !== -1) {
                 objectTearDownData.points.splice(index, 1);
                 updateTemporaryPointsUI();
-
-                // Если точек не осталось — сбрасываем отчёт
                 if (objectTearDownData.points.length === 0) {
                     objectTearDownData = null;
-                    // разблокировать поля автомобиля
-                    vinInput.disabled = false;
-                    modelEl.disabled = false;
-                    driveEl.disabled = false;
-                    configEl.disabled = false;
                 }
             }
-        } else {
-            showConfirmAlert('Ошибка при удалении точки: ' + (result?.error || 'неизвестная ошибка'));
         }
-
-        // Восстанавливаем кнопку
-        buttonDeletePiont.textContent = '×';
-        buttonDeletePiont.disabled = false;
     });
 
+    cardContent.appendChild(deleteBtn);
+    card.appendChild(cardHeader);
+    card.appendChild(cardContent);
+    timelineItem.appendChild(card);
 
-    photoSpan.textContent = '📸';
-    photoSpan.style.display = 'none'; // скрыто, если фото нет
+    // Клик по карточке раскрывает/закрывает
+    cardHeader.addEventListener('click', () => {
+        timelineItem.classList.toggle('open');
+    });
 
-    buttonDeletePiont.textContent = '×';
+    // Обработчик клика по иконке фото
+    const photoIcon = cardHeader.querySelector('.timeline-photo-icon');
+    if (photoIcon) {
+        photoIcon.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const base64 = await window.api.getPhotoBase64(point.photo);
+            if (base64) showPhotoModal(base64);
+        });
+    }
 
-    item.append(pointNumSpan, defectSpan, detailsSpan, photoSpan, locationText, buttonDeletePiont,);
-
-    return item
+    return timelineItem;
 }

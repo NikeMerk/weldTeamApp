@@ -663,35 +663,26 @@ export const createContacts = async () => {
 };
 
 export const createHeaderContent = async (currentUser) => {
-  const header = document.querySelector('.header');
-  if (!header) return; // Безопасность: выходим, если хедера нет на странице
+  const userProfil = document.getElementById('userInfoContainer');
+  const textName = document.createElement("p");
+  const avatar = document.createElement('img');
 
-  header.innerHTML = '';
+  textName.classList.add("user-name")
+  console.log(userProfil)
+  if (!userProfil) return;
 
-  const headerBlock = document.createElement('div');
-  headerBlock.classList.add('header__block');
+  userProfil.innerHTML = '';
 
-  const headerContainer = document.createElement('div');
-  headerContainer.classList.add('header-container');
-
-  const headerRightBlock = document.createElement('div');
-  headerRightBlock.classList.add('header-right-block');
-
-  const avatarClient = document.createElement('img');
-  avatarClient.classList.add('avatar-client');
-  avatarClient.alt = 'Аватар пользователя';
-
+  avatar.classList.add('avatar-client');
+  avatar.alt = 'Аватар пользователя';
+  console.log(currentUser.name)
   if (currentUser && currentUser.avatarUrl) {
     const base64Photo = await window.api.getAvatarBase64(currentUser.avatarUrl);
-    // Вместо локального пути запрашиваем дефолтную картинку с диска I:\
-    avatarClient.src = base64Photo || await window.api.getAvatarBase64('default.jpg') || '';
+    avatar.src = base64Photo || await window.api.getAvatarBase64('default.jpg') || '';
   } else {
-    avatarClient.src = await window.api.getAvatarBase64('default.jpg') || '';
+    avatar.src = await window.api.getAvatarBase64('default.jpg') || '';
   }
-  // =========================================================
-
-  headerRightBlock.appendChild(avatarClient);
-  headerContainer.appendChild(headerRightBlock);
-  headerBlock.appendChild(headerContainer);
-  header.appendChild(headerBlock);
+  
+  textName.textContent = `${currentUser.name}`;
+  userProfil.append(avatar, textName);
 }
