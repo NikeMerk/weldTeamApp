@@ -1,8 +1,8 @@
 import { stationModels, stationRobots, gunStations } from "../../api/dataArray.js";
-
+import { confirmWindow } from "../dom.js";
 
 let objectTearDownData = null;
-let currentPointPhoto = null;
+let currentTeardownPhotos = []
 
 export function createNewDown(mainContainer, existingReport = null, mainPageTearDown = null) {
     if (!mainContainer) return;
@@ -115,54 +115,13 @@ export function createNewDown(mainContainer, existingReport = null, mainPageTear
     const btnPointPhoto = document.getElementById('btn-point-photo');
     if (btnPointPhoto) {
         btnPointPhoto.onclick = async () => {
-            const result = await window.api.selectFile();
-
-            if (result && result.base64 && result.filename) {
-                try {
-                    btnPointPhoto.textContent = '⏳ Сжатие фото...';
-
-                    // Функция сжатия
-                    const compressImageBase64Native = (base64, maxWidth = 1200, quality = 0.7) => {
-                        return new Promise((resolve, reject) => {
-                            const img = new Image();
-                            img.onload = () => {
-                                const canvas = document.createElement('canvas');
-                                let width = img.width;
-                                let height = img.height;
-
-                                if (width > maxWidth) {
-                                    height = (height * maxWidth) / width;
-                                    width = maxWidth;
-                                }
-
-                                canvas.width = width;
-                                canvas.height = height;
-
-                                const ctx = canvas.getContext('2d');
-                                ctx.drawImage(img, 0, 0, width, height);
-
-                                const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
-                                resolve(compressedBase64);
-                            };
-                            img.onerror = reject;
-                            img.src = base64;
-                        });
-                    };
-
-                    // ВЫЗЫВАЕМ функцию и передаём ей base64
-                    const compressedBase64 = await compressImageBase64Native(result.base64, 1200, 0.7);
-
-                    result.base64 = compressedBase64;
-                    currentPointPhoto = result.filename;
-                    btnPointPhoto.textContent = '📷 Фото выбрано ✓';
-                    btnPointPhoto.style.background = '#4caf50';
-                    btnPointPhoto.style.borderColor = '#4caf50';
-
-                } catch (error) {
-                    console.error("Ошибка при сжатии изображения:", error);
-                    btnPointPhoto.textContent = '❌ Ошибка сжатия';
-                    btnPointPhoto.style.background = '#f44336';
-                }
+            const result = await window.api.selectFiles('teardown'); // используем общий метод
+            if (result && result.length > 0) {
+                currentTeardownPhotos = result.map(f => f.filename);
+  
+                btnPointPhoto.textContent = '📷 Фото выбрано ✓';
+                btnPointPhoto.style.background = '#4caf50';
+                btnPointPhoto.style.borderColor = '#4caf50';
             }
         };
     }
@@ -217,7 +176,7 @@ export function createNewDown(mainContainer, existingReport = null, mainPageTear
             defectType: defect.value,
             importance: importance.value,
             details: details.value,
-            photo: currentPointPhoto,
+            photos: currentTeardownPhotos,
             area: areaValue,
             station: stationValue,
             equipment: equipmentValue
@@ -480,10 +439,11 @@ function createVehicleReportForm(formWrapper) {
     defectGroup.className += ' full-width';
     const defectSelect = createSelect('add-point-defect', [
         { value: '', text: '-- Выберите тип --' },
-        { value: 'Непровар', text: 'Непровар' },
-        { value: 'Малое ядро', text: 'Малое ядро' },
-        { value: 'Прожог', text: 'Прожог' },
-        { value: 'Смещение', text: 'Смещение' }
+        { value: 'Непровар', text: 'Непровар/Separation' },
+        { value: 'Малое ядро', text: 'Малое ядро/Small nugget' },
+        { value: 'Прожог', text: 'Прожог/Burn-through' },
+        { value: 'Смещение', text: 'Смещение/NG Position' },
+        { value: 'Пропуск', text: 'Пропуск/Missed' },
     ]);
     defectGroup.appendChild(defectSelect);
     adderGrid.appendChild(defectGroup);
@@ -757,9 +717,9 @@ function renderPointsItems(point) {
         <div class="timeline-card-left">
             <span class="timeline-num">#${point.pointNum}</span>
             <span class="timeline-defect">${point.defectType}</span>
+             ${point.importance === 'Важно' ? '<span class="timeline-importance">Важно</span>' : '<span class="timeline-no-importance">Норма</span>'}
         </div>
         <div class="timeline-card-right">
-            ${point.importance === 'Важно' ? '<span class="timeline-importance">⚠️</span>' : ''}
             ${point.photo ? '<span class="timeline-photo-icon">📸</span>' : ''}
             <span class="timeline-arrow">▼</span>
         </div>
@@ -769,22 +729,30 @@ function renderPointsItems(point) {
     const cardContent = document.createElement('div');
     cardContent.className = 'timeline-card-content';
     cardContent.innerHTML = `
-        <div class="timeline-detail-row">
-            <span class="timeline-detail-label">📝 Подробности:</span>
-            <span class="timeline-detail-value">${point.details || '—'}</span>
-        </div>
-        <div class="timeline-detail-row">
-            <span class="timeline-detail-label">📍 Раздел:</span>
-            <span class="timeline-detail-value">${point.area || '—'}</span>
-        </div>
-        <div class="timeline-detail-row">
-            <span class="timeline-detail-label">🏭 Станция / Модель:</span>
-            <span class="timeline-detail-value">${point.station || '—'}</span>
-        </div>
-        <div class="timeline-detail-row">
-            <span class="timeline-detail-label">🤖 Оборудование:</span>
-            <span class="timeline-detail-value">${point.equipment || '—'}</span>
-        </div>
+    <div class="timeline-detail-row">
+    <span class="timeline-detail-label">Раздел:</span>
+    <span class="timeline-detail-value">${point.area || '—'}</span>
+    </div>
+    <div class="timeline-detail-row">
+    <span class="timeline-detail-label">Станция / Модель:</span>
+    <span class="timeline-detail-value">${point.station || '—'}</span>
+    </div>
+    <div class="timeline-detail-row">
+    <span class="timeline-detail-label">Оборудование:</span>
+    <span class="timeline-detail-value">${point.equipment || '—'}</span>
+    </div>
+    <div class="timeline-detail-row">
+        <span class="timeline-detail-label">Коментарии:</span>
+        <span class="timeline-detail-value">${point.details || '—'}</span>
+    </div>
+    <div class="timeline-detail-row" id="photos-row-${point.id}">
+    <span class="timeline-detail-label">Фото:</span>
+    <div class="timeline-photos-list" id="photos-list-${point.id}">
+        ${point.photos && point.photos.length > 0
+            ? `<span class="photos-count-icon" data-photos='${JSON.stringify(point.photos)}'>📸 ${point.photos.length} шт</span>`
+            : '<span class="no-photos">—</span>'}
+    </div>
+</div>
     `;
 
     // Кнопка удаления
@@ -793,6 +761,11 @@ function renderPointsItems(point) {
     deleteBtn.textContent = 'Удалить точку';
     deleteBtn.addEventListener('click', async (e) => {
         e.stopPropagation();
+
+        // Кастомная модалка подтверждения
+        const confirmed = await confirmWindow('Удалить эту точку?');
+        if (!confirmed) return;
+
         const result = await window.api.deleteTeardownPoint(objectTearDownData.id, point.id);
         if (result && result.success) {
             const index = objectTearDownData.points.findIndex(p => p.id === point.id);
@@ -803,6 +776,8 @@ function renderPointsItems(point) {
                     objectTearDownData = null;
                 }
             }
+        } else {
+            showConfirmAlert('Ошибка при удалении точки: ' + (result?.error || 'неизвестная ошибка'));
         }
     });
 
@@ -817,12 +792,14 @@ function renderPointsItems(point) {
     });
 
     // Обработчик клика по иконке фото
-    const photoIcon = cardHeader.querySelector('.timeline-photo-icon');
-    if (photoIcon) {
-        photoIcon.addEventListener('click', async (e) => {
+    const photosIcon = cardContent.querySelector(`#photos-list-${point.id} .photos-count-icon`);
+    if (photosIcon) {
+        photosIcon.addEventListener('click', async (e) => {
             e.stopPropagation();
-            const base64 = await window.api.getPhotoBase64(point.photo);
-            if (base64) showPhotoModal(base64);
+            const photos = JSON.parse(photosIcon.dataset.photos);
+            if (photos && photos.length > 0) {
+                showPhotoGallery(photos, 0); // используем уже готовую функцию
+            }
         });
     }
 

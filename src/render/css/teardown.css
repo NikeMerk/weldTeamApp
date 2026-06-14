@@ -567,7 +567,38 @@
 }
 
 .timeline-importance {
-    font-size: 14px;
+    font-size: 12px;
+    padding: 4px 10px;
+    background: #ff9800;
+    color: #1a1a2e;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.timeline-no-importance {
+    font-size: 12px;
+    padding: 4px 10px;
+    background: #fbfbfb30;
+    color: #f5f5f9;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.photos-count-icon {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #2a2a3a;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 12px;
+    transition: 0.2s;
+}
+
+.photos-count-icon:hover {
+    background: #00bcd4;
+    color: #1a1a2a;
 }
 
 .timeline-photo-icon {
@@ -608,8 +639,13 @@
     display: flex;
     gap: 12px;
     font-size: 13px;
-    padding: 6px 0;
-    border-bottom: 1px solid #2a2a3a;
+    padding: 8px 0;
+}
+
+.tear-down-title {
+    font-size: 25px;
+    color: white;
+    margin-top: 0;
 }
 
 .timeline-detail-row:last-child {
@@ -642,4 +678,3 @@
 .timeline-delete-btn:hover {
     background: #cc0000;
 }
-

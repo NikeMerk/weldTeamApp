@@ -1,6 +1,6 @@
 import { extraSelectsConfig, stationModels, stationRobots, gunStations } from "../api/dataArray.js";
 import { showLoader, hideLoader } from "../../render/loader/loader.js";
-
+import { showPhotoGallery } from "../../render/render.js";
 
 export const createTitleTodo = () => {
   const title = document.createElement("h2");
@@ -299,7 +299,7 @@ export const createForm = () => {
   const buttonPhoto = document.createElement('button');
 
   buttonPhoto.type = 'button';
-
+  buttonPhoto.textContent = '📷 Фото';
   form.classList.add('todo-form');
   input.classList.add('todo-input');
   button.classList.add('todo-button');
@@ -403,7 +403,16 @@ export const createItem = (obj, listArray) => {
   }
 
   if (obj.done) item.classList.add('todo-item--completed');
-  if (obj.photo) itemBlock.append(itemButtonShowPhoto) // тут добавляю
+  if (obj.photos && obj.photos.length > 0) {
+    const photosBlock = document.createElement('div');
+    photosBlock.className = 'todo-item-photos';
+    photosBlock.textContent = `📸 ${obj.photos.length}`;
+    photosBlock.style.cursor = 'pointer';
+    photosBlock.addEventListener('click', () => {
+      showPhotoGallery(obj.photos, 0); // 0 — индекс первого фото
+    });
+    itemBlock.appendChild(photosBlock);
+  }
 
   itemButtonChange.onclick = () => {
     openEditModal(obj, (updatedTask) => {
@@ -682,7 +691,8 @@ export const createHeaderContent = async (currentUser) => {
   } else {
     avatar.src = await window.api.getAvatarBase64('default.jpg') || '';
   }
-  
+
   textName.textContent = `${currentUser.name}`;
   userProfil.append(avatar, textName);
 }
+

@@ -282,12 +282,11 @@
 .todo-button-photo {
   width: 60px;
   height: 50px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  border: none;
+  border: 2px solid purple;
+  border-radius: 10px;
   background-color: transparent;
   cursor: pointer;
+  color: white;
   transition: transform 0.1s ease;
 }
 

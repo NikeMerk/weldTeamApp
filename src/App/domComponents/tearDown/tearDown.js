@@ -6,6 +6,10 @@ export async function mainPageTearDown(mainContainer) {
     // Очищаем всё
     mainContainer.innerHTML = '';
 
+    const title = document.createElement("h2");
+    title.classList.add("tear-down-title")
+    title.textContent = "Tear Down"
+    mainContainer.append(title)
     // 1. Верхняя панель
     const toolbar = document.createElement('div');
     toolbar.className = 'td-toolbar';

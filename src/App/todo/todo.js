@@ -1,6 +1,7 @@
 import { stationModels, extraSelectsConfig, stationRobots } from "../api/dataArray.js";
 import { createSect, createList, createForm, createItem, createFilters, createTitleTodo } from "../domComponents/dom.js";
-let currentPhoto = null;
+
+let currentPhotos = null;
 
 // 👇 ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ДЛЯ СЖАТИЯ ФОТО (Canvas)
 
@@ -20,12 +21,15 @@ async function createTodoApp(container, listArray, updateCallback) {
   container.append(startTitle, selectsContainer, startForm.form, startList);
 
   // 👇 ОБНОВЛЕННАЯ СТРАТЕГИЯ ВЫБОРА И СЖАТИЯ ФОТО
-buttonPhoto.onclick = async () => {
-    const result = await window.api.selectFile();
-    if (result && result.base64) {
-      currentPhoto = result.filename;
+  buttonPhoto.onclick = async () => {
+    const result = await window.api.selectFiles('ktm');
+    if (result && result.length > 0) {
+      currentPhotos = result.map(f => f.filename);
+      buttonPhoto.textContent = `📸 (${currentPhotos.length}) фото `;
+      buttonPhoto.style.background = '#4caf50';
     }
   };
+
 
   const loaded = await window.api.loadIssues();
   listArray.length = 0;
@@ -94,7 +98,7 @@ buttonPhoto.onclick = async () => {
       done: false,
       date: new Date().toISOString(),
       type: selectedMain,
-      photo: currentPhoto || null,
+      photos: currentPhotos,
       authorId: user.windowsLogin,
       authorAvatar: user.avatarUrl || null
     };

@@ -131,22 +131,53 @@ ipcMain.handle('save-issues', async (event, issues) => {
   return { success: saveIssues(issues) };
 });
 
-ipcMain.handle('select-file', async () => {
+
+const sharp = require('sharp');  // добавь в начало файла, если ещё нет
+
+ipcMain.handle('select-files', async (event, type) => {
   try {
+    // Определяем папку назначения
+    let targetDir;
+    if (type === 'teardown') {
+      targetDir = TEARDOWN_PHOTO_DIR;
+    } else if (type === 'ktm') {
+      targetDir = KTM_PHOTO_DIR;
+    } else {
+      console.error('❌ Неизвестный тип фотографий:', type);
+      return [];
+    }
+
     const result = await dialog.showOpenDialog({
-      properties: ['openFile'],
+      properties: ['openFile', 'multiSelections'],
       filters: [{ name: 'Images', extensions: ['jpg', 'png', 'jpeg', 'gif'] }]
     });
-    if (result.canceled || result.filePaths.length === 0) return null;
 
-    const filePath = result.filePaths[0];
-    const base64 = fs.readFileSync(filePath, 'base64');
-    const filename = Date.now() + '_' + path.basename(filePath);
-    await savePhotoFile(`data:image/jpeg;base64,${base64}`, filename);
-    return { base64: `data:image/jpeg;base64,${base64}`, filename: filename };
+    if (result.canceled || result.filePaths.length === 0) return [];
+
+    const savedFiles = [];
+    for (const filePath of result.filePaths) {
+      // Сжатие через sharp
+      const buffer = await sharp(filePath)
+        .resize(1200, null, { withoutEnlargement: true })
+        .jpeg({ quality: 75 })
+        .toBuffer();
+
+      const filename = Date.now() + '_' + path.basename(filePath).replace(/\.(png|gif)$/i, '.jpg');
+
+      // Создаём папку, если её нет
+      if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
+      const destPath = path.join(targetDir, filename);
+      fs.writeFileSync(destPath, buffer);
+
+      savedFiles.push({
+        filename,
+        base64: `data:image/jpeg;base64,${buffer.toString('base64')}`
+      });
+    }
+    return savedFiles;
   } catch (err) {
-    console.error(err);
-    return null;
+    console.error('Ошибка выбора/сжатия файлов:', err);
+    return [];
   }
 });
 
